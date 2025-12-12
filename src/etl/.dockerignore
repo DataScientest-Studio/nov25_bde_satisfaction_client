@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+*.env
+
+# Data / outputs
+datas/
+data/
+*.json
+*.jsonl
+*.csv
+
+# Logs
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Docker files
+Dockerfile*
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
