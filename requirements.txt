@@ -1,1 +1,7 @@
-
+certifi==2025.11.12
+colorama==0.4.6
+elastic-transport==8.17.1
+elasticsearch==8.12.0
+loguru==0.7.3
+urllib3==2.6.2
+win32_setctime==1.2.0
