@@ -32,7 +32,7 @@ services:
     environment:
       ES_HOST: http://elasticsearch:9200
     volumes:
-      - ./datas:/app/datas
+      - ./data:/app/data
     depends_on:
       elasticsearch:
         condition: service_healthy

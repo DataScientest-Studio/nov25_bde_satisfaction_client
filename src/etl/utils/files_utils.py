@@ -125,7 +125,7 @@ class FileUtils:
         """
         Enregistre un dictionnaire dans un fichier JSON avec indentation et encodage UTF-8.
 
-        Cette méthode enregistre les données dans un fichier JSON sous le dossier 'datas' en utilisant un nom de 
+        Cette méthode enregistre les données dans un fichier JSON sous le dossier 'data' en utilisant un nom de 
         fichier généré avec un timestamp pour assurer l'unicité.
 
         Paramètres:
@@ -147,8 +147,8 @@ class FileUtils:
             Si une erreur se produit lors de la création ou de l'écriture du fichier JSON.
         """
         try:
-            Path("datas").mkdir(exist_ok=True)
-            filepath = Path("datas") / f"{filename}_{FileUtils.get_timestamp()}.json"
+            Path("data").mkdir(exist_ok=True)
+            filepath = Path("data") / f"{filename}_{FileUtils.get_timestamp()}.json"
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
             logger.info(f"💾 Fichier JSON sauvegardé : {filepath}")
@@ -163,7 +163,7 @@ class FileUtils:
         Enregistre une liste de dictionnaires dans un fichier JSONL.
 
         Cette méthode enregistre chaque dictionnaire de la liste dans une nouvelle ligne du fichier JSONL sous le 
-        dossier 'datas', avec un nom de fichier unique basé sur un timestamp.
+        dossier 'data', avec un nom de fichier unique basé sur un timestamp.
 
         Paramètres:
         -----------
@@ -184,8 +184,8 @@ class FileUtils:
             Si une erreur se produit lors de la création ou de l'écriture du fichier JSONL.
         """
         try:
-            Path("datas").mkdir(exist_ok=True)
-            filepath = Path("datas") / f"{filename}_{FileUtils.get_timestamp()}.jsonl"
+            Path("data").mkdir(exist_ok=True)
+            filepath = Path("data") / f"{filename}_{FileUtils.get_timestamp()}.jsonl"
             with open(filepath, "w", encoding="utf-8") as f:
                 for doc in docs:
                     f.write(json.dumps(doc, ensure_ascii=False) + "\n")

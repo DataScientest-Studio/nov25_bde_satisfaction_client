@@ -84,9 +84,9 @@ docker volume ls -q | xargs -r docker volume rm
 
 Nettoyer le répertoire de données (si présent)
 docker compose down -v
-rm -rf ./datas/*
-mkdir -p ./datas
-chmod -R 777 ./datas
+rm -rf ./data/*
+mkdir -p ./data
+chmod -R 777 ./data
 Attention : Les commandes ci‑dessus suppriment tous les volumes et images Docker.
 Utilisez‑les uniquement si vous êtes sûr de ne pas garder d’autres conteneurs actifs.
 
@@ -146,4 +146,4 @@ Elasticsearch ne démarre pas               | Port déjà utilisé, mémoire ins
 Erreur ConnectionError vers Elasticsearch | Service ES n’est pas encore prêt lors du lancement du pipeline | Ajouter un délai ou une logique retry dans le script, ou démarrer le pipeline après que docker compose up -d ait fini de lancer tous les conteneurs (sleep 30).
 Mapping non appliqué                       | Le script ne recrée pas l’indice à chaque exécution           | Nettoyer l’indice avant de relancer (curl -X DELETE http://localhost:9200/reviews) ou utiliser es.indices.create(index='reviews', body={...}) dans le pipeline.
 Kibana "Data view not found"               | Le pattern d’index est incorrect, l’indice n’existe pas       | Vérifier que l’indice reviews existe (curl http://localhost:9200/_cat/indices) et que le pattern reviews* correspond.
-Permissions sur le répertoire datas      | Docker ne peut pas écrire dans le volume partagé              | Donner les droits 777 ou configurer un utilisateur UID/GID cohérent dans Dockerfile (ex. RUN useradd -u 1000 app && chown -R app:app /data).
+Permissions sur le répertoire data      | Docker ne peut pas écrire dans le volume partagé              | Donner les droits 777 ou configurer un utilisateur UID/GID cohérent dans Dockerfile (ex. RUN useradd -u 1000 app && chown -R app:app /data).

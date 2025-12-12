@@ -14,8 +14,8 @@ COPY requirements.txt .
 RUN python -m pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-# Crée le dossier datas et donne les permissions
-RUN mkdir -p /app/datas && chmod -R 777 /app/datas
+# Crée le dossier data et donne les permissions
+RUN mkdir -p /app/data && chmod -R 777 /app/data
 
 # Copier tout le code
 COPY . .
