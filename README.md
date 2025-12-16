@@ -1,149 +1,210 @@
-# NOV25 BDE Satisfaction Client - Pipeline ETL
+# NOV25 – BDE Satisfaction Client
+## Pipeline ETL Trustpilot → Elasticsearch
 
-Ce dépôt contient un pipeline d'Extract‑Transform‑Load (ETL) qui récupère les avis publiés sur [Trustpilot](https://fr.trustpilot.com/) et les indexe dans Elasticsearch sous le nom d’indice reviews.
+Ce dépôt contient un pipeline **Extract – Transform – Load (ETL)** permettant de récupérer des avis publiés sur **Trustpilot** et de les indexer dans **Elasticsearch** sous le nom d’indice **`reviews`**.
 
-Le projet peut être exécuté :
+Le projet peut être exécuté de deux manières :
 
-Mode                          | Avantages
------------------------------ | -----------------------------------------------------------
-Localement (sans Docker)      | Débogage rapide, pas besoin de services externes.
-Docker‑Compose                 | Isolation des dépendances, idéal pour CI/CD ou mise en prod.
+| Mode            | Avantages |
+|-----------------|-----------|
+| Local (sans Docker) | Débogage rapide, aucun service externe requis |
+| Docker Compose  | Isolation des dépendances, idéal pour CI/CD et production |
 
-⚠️ Important - Si vous lancez le pipeline localement, commentez la partie « Chargement dans Elasticsearch » dans etl/etl_reviews.py.
-
-Le runtime local ne démarre pas d’Elasticsearch par défaut.
-
-Table des matières
-1. Prérequis
-2. Configuration et exécution locale
-3. Exécution avec Docker Compose
-    - 3.1. Nettoyage de l’environnement
-    - 3.2. Construction et lancement du stack
-4. Vérification des données
-5. Kibana - Création d’une vue et d’un tableau de bord
-6. Dépannage & problèmes fréquents
+⚠️ **Important**
+Si vous exécutez le pipeline **localement**, vous devez **commenter la partie “Chargement dans Elasticsearch”** dans `etl/etl_reviews.py`, car Elasticsearch n’est pas lancé par défaut.
 
 ---
 
-1  Prérequis
-Outil                            | Version minimale | Installation ?
--------------------------------- | ---------------- | --------------
-Python                           | 3.10+            | ✅ (pip, venv)
-Docker                           | 20.x+            | ✅
-docker‑compose                   | 1.29+            | ✅
-ElasticSearch (si vous voulez l’exécuter localement) | 8.12+ | optionnel
-Kibana (pour la visualisation)   | 8.12+            | optionnel
+## Table des matières
 
-Remarque : Pour tester uniquement la logique ETL, il suffit d’installer Python et les dépendances du requirements.txt.
-
-Les scripts de chargement dans Elasticsearch sont désactivés par défaut.
+1. [Prérequis](#1-prérequis)
+2. [Exécution locale](#2-configuration-et-exécution-locale)
+3. [Exécution avec Docker Compose](#3-exécution-avec-docker-compose)
+4. [Vérification des données](#4-vérification-des-données)
+5. [Kibana – Data View et Dashboard](#5-kibana--création-dune-vue-et-dun-tableau-de-bord)
+6. [Dépannage & problèmes fréquents](#6-dépannage--problèmes-fréquents)
 
 ---
 
-2  Configuration et exécution locale
-Créer l’environnement virtuel
+## 1. Prérequis
+
+| Outil | Version minimale | Obligatoire |
+|------|------------------|-------------|
+| Python | 3.10+ | ✅ |
+| Docker | 20.x+ | ✅ |
+| Docker Compose | 1.29+ | ✅ |
+| Elasticsearch | 8.12+ | optionnel |
+| Kibana | 8.12+ | optionnel |
+
+📌 **Remarque**
+Pour tester uniquement la logique ETL, **Python et les dépendances du `requirements.txt` suffisent**.
+Les scripts de chargement Elasticsearch sont désactivés par défaut.
+
+---
+
+## 2. Configuration et exécution locale
+
+### 2.1 Création de l’environnement virtuel
+
+```bash
 python -m venv venv
-
-Activer l’environnement
-macOS / Linux :
+# macOS / Linux
 source venv/bin/activate
-
-Windows PowerShell :
+# Windows (PowerShell)
 .\venv\Scripts\activate
-
-Installer les dépendances
+# Installation des dépendances
 pip install --upgrade pip
 pip install -r requirements.txt
-
-Lancer le pipeline (10 pages)
+# Lancement du pipeline
 python main.py --pages 10
-
-🔧 Astuce : Si vous ne voulez pas charger les données dans Elasticsearch localement, ouvrez etl/etl_reviews.py et commentez la section :
-
-```python
-# # Chargement Elasticsearch
-# es = Elasticsearch(hosts=["localhost:9200"])
-# ...
 ```
+
 ---
 
-3  Exécution avec Docker Compose
+## 3. Exécution avec Docker Compose
 
-3.1 Nettoyage complet (si besoin)
-Ces commandes suppriment les conteneurs, images et volumes inutilisés pour repartir d’un état propre.
+### 3.1 Nettoyage complet (optionnel)
 
-Arrêter / Supprimer tous les conteneurs
+⚠️ Attention :
+Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker.
+
+# Arrêt et suppression des conteneurs
+```bash
 docker ps -a -q | xargs -r docker stop
 docker ps -a -q | xargs -r docker rm
-
-Supprimer toutes les images (optionnel, à faire avec prudence)
+```
+# Suppression des images
+```bash
 docker images -q | xargs -r docker rmi -f
-
-Supprimer tous les volumes Docker
+```
+# Suppression des volumes
+```bash
 docker volume ls -q | xargs -r docker volume rm
-
-Nettoyer le répertoire de données (si présent)
+```
+# Nettoyage du dossier data
+```bash
 docker compose down -v
 rm -rf ./data/*
 mkdir -p ./data
 chmod -R 777 ./data
-Attention : Les commandes ci‑dessus suppriment tous les volumes et images Docker.
-Utilisez‑les uniquement si vous êtes sûr de ne pas garder d’autres conteneurs actifs.
+```
 
-3.2 Construction et lancement du stack
-Construire l’image app
+### 3.2 Construction et lancement du stack
+
+- Construire l’image applicative
+```bash
 docker compose build app
-
-Lancer les services en arrière-plan (Elasticsearch + Kibana)
+```
+- Lancer Elasticsearch et Kibana
+```bash
 docker compose up -d
-
-Exécuter le pipeline une seule fois (en mode interactif)
+```
+- Exécuter le pipeline ETL
+```bash
 docker compose run --rm app python main.py --pages 10
-
-Vérifier que l’indice a bien été créé
-curl -s -X GET "http://localhost:9200/reviews/_mapping?pretty"
-Vous devriez voir la définition du mapping de reviews.
+```
+- Vérifier la création de l’indice
+```bash
+curl -X GET "http://localhost:9200/reviews/_mapping?pretty"
+```
 
 ---
 
-4  Vérification des données
+## 4. Vérification des données
 
 Mapping :
+```bash
 curl http://localhost:9200/reviews/_mapping
-
-Recherche simple (exemple) :
-curl -X GET "http://localhost:9200/reviews/_search?pretty" -H 'Content-Type: application/json' -d'
-{
+```
+Recherche simple :
+```bash
+curl -X GET "http://localhost:9200/reviews/_search?pretty" \
+-H 'Content-Type: application/json' \
+-d '{
   "query": { "match_all": {} }
 }'
+```
+Depuis Kibana – Dev Tools :
+```bash
+GET /_cat/indices?v
+GET /reviews/_mapping
+GET /reviews/_count
+GET /reviews/_search
+{
+  "size": 5
+}
+```
 
 ---
 
-5  Kibana - Création d’une vue et d’un tableau de bord
-Accéder à Kibana
-http://<IP_PUBLIQUE_VM>:5601/app/home#/
-OU
-http://localhost:5601/app/home#/
+## 5. Kibana – Création d’une vue et d’un tableau de bord
 
-Créer une Data View
+### 5.1 Accès à Kibana
+```bash
+Local : http://localhost:5601
+VM : http://<IP_PUBLIQUE_VM>:5601
+```
+### 5.2 Création d’une Data View
+
+```bash
 Nom : NOV25_BDE_SATISFACTION_CLIENT
-Pattern d’index : reviews*
-Timestamp field : Aucun (vous ne voulez pas filtrer par temps)
+Index pattern : reviews*
+Champ temporel : Aucun
+```
 
-Visualiser les données
-Aller dans Visualize Library → Create new visualization → Lens
-Sélectionner la Data View créée ci‑dessus
-Créer des graphiques (par exemple histogramme de note, top 10 catégories, etc.)
-(Optionnel) Exporter ou partager le tableau de bord via Share → Permalink.
+### 5.3 Visualisation
+
+1. Accéder à Elastic/Kibana depuis le navigateur : http://localhost:5601/app/home#/
+
+2. Aller dans **Visualize Library** → **Create new visualization**
+
+3. Sélectionner le type de visualisation : **Lens**
+
+4. Choisir la **Data View** précédemment créée (`NOV25_BDE_SATISFACTION_CLIENT`)
+
+5. Créer les visualisations suivantes :
+   - **Histogramme des notes** (répartition des avis par score)
+   - **Top catégories** (catégories les plus représentées)
+   - **Volume d’avis** (nombre total d’avis ou évolution)
+
+6. Enregistrer chaque visualisation pour pouvoir les réutiliser dans un tableau de bord.
+
+### 5.4 Initialisation lors du premier démarrage (Docker)
+
+⚠️ **Respecter impérativement l’ordre suivant :**
+
+1. Lancer l’infrastructure Docker (Elasticsearch + Kibana) depuis le dossier `src\docker` :
+   ```bash
+   docker compose up -d
+    ```
+2. Accéder à Elastic/Kibana :
+   http://localhost:5601/app/home#/
+
+3. Importer les objets sauvegardés (depuis le menu hamburger) :
+   - Stack Management
+   - Saved Objects
+   - Import
+   - Sélectionner le fichier .ndjson
+   - Laisser les options par défaut
+
+4. Exécuter le pipeline ETL afin de créer et alimenter l’indice reviews :
+   ```bash
+    cd src\etl
+    python main.py --pages 10
+    ```
+
+5. Depuis Elastic/Kibana, aller dans Analytics :
+   - Dashboards et appliquer un filtre sur les 7 derniers jours.
 
 ---
 
-6  Dépannage & problèmes fréquents
+## 6. Dépannage & problèmes fréquents
 
-Problème                                   | Cause probable                                                | Solution
------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------
-Elasticsearch ne démarre pas               | Port déjà utilisé, mémoire insuffisante, paramètres de JVM trop élevés | Vérifier le port (9200) et ajuster la configuration Docker (docker-compose.yml) ou augmenter les ressources allouées.
-Erreur ConnectionError vers Elasticsearch | Service ES n’est pas encore prêt lors du lancement du pipeline | Ajouter un délai ou une logique retry dans le script, ou démarrer le pipeline après que docker compose up -d ait fini de lancer tous les conteneurs (sleep 30).
-Mapping non appliqué                       | Le script ne recrée pas l’indice à chaque exécution           | Nettoyer l’indice avant de relancer (curl -X DELETE http://localhost:9200/reviews) ou utiliser es.indices.create(index='reviews', body={...}) dans le pipeline.
-Kibana "Data view not found"               | Le pattern d’index est incorrect, l’indice n’existe pas       | Vérifier que l’indice reviews existe (curl http://localhost:9200/_cat/indices) et que le pattern reviews* correspond.
-Permissions sur le répertoire data      | Docker ne peut pas écrire dans le volume partagé              | Donner les droits 777 ou configurer un utilisateur UID/GID cohérent dans Dockerfile (ex. RUN useradd -u 1000 app && chown -R app:app /data).
+| Problème | Cause probable | Solution |
+|----------|----------------|----------|
+| Elasticsearch ne démarre pas | Port 9200 utilisé, mémoire insuffisante | Vérifier les ports et ajuster `docker-compose.yml` |
+| ConnectionError vers Elasticsearch | Service ES pas encore prêt | Attendre (`sleep 30`) ou ajouter un retry dans le script |
+| Mapping non appliqué | Indice existant | Supprimer l’indice : `DELETE /reviews` |
+| Data View introuvable | Mauvais pattern | Vérifier que le pattern est `reviews*` |
+| Problème de permissions | Volume Docker | `chmod -R 777 ./data` |
+| Erreur Docker sous Windows | Docker Desktop non démarré ou backend WSL2 inactif | Vérifier que **Docker Desktop** est démarré, que le backend **WSL2** est actif, puis relancer Docker Desktop. Message typique : `unable to get image docker.elastic.co/kibana/kibana:8.12.0 The system cannot find the file specified` |

@@ -57,7 +57,7 @@ def run_reviews_etl(
     Exception
         Si une erreur se produit à n'importe quelle étape du pipeline (extraction, transformation, sauvegarde, chargement).
     """
-    logger.info(f"🚀 Démarrage du pipeline ETL Reviews (pages={max_pages})")
+    logger.info(f"Démarrage du pipeline ETL Reviews (pages={max_pages})")
 
     extract_raw: List[Dict] = []
     transform_docs: List[Dict] = []
@@ -75,7 +75,7 @@ def run_reviews_etl(
             logger.success(
                 f"Extraction terminée : {len(extract_raw)} reviews récupérées")
         except Exception as e:
-            logger.exception(f"❌ Erreur lors de l'extraction : {e}")
+            logger.exception(f"✖ Erreur lors de l'extraction : {e}")
 
     # ---- Transformation ----
     if do_transform:
@@ -92,30 +92,30 @@ def run_reviews_etl(
             logger.success(
                 f"Transformation terminée : {len(transform_docs)} documents prêts pour Elasticsearch")
         except Exception as e:
-            logger.exception(f"❌ Erreur lors de la transformation : {e}")
+            logger.exception(f"✖ Erreur lors de la transformation : {e}")
 
     # ---- Sauvegarde JSONL ----
     if do_save:
         try:
             if not transform_docs:
                 logger.warning(
-                    "⚠️ Aucun document transformé trouvé, tentative de charger dernier JSON...")
+                    "Aucun document transformé trouvé, tentative de charger dernier JSON...")
                 transform_docs = FileUtils.load_last_jsonl("data")
                 if not transform_docs:
                     raise ValueError("Aucune donnée à sauvegarder")
 
             logger.info("[3/4] Sauvegarde en JSONL...")
             jsonl_path = FileUtils.save_to_jsonl(transform_docs, "reviews")
-            logger.info(f"💾 Données sauvegardées : {jsonl_path}")
+            logger.info(f"Données sauvegardées : {jsonl_path}")
         except Exception as e:
-            logger.exception(f"❌ Erreur lors de la sauvegarde JSONL : {e}")
+            logger.exception(f"✖ Erreur lors de la sauvegarde JSONL : {e}")
 
     # ---- Chargement Elasticsearch ----
     if do_load:
         try:
             if not transform_docs:
                 logger.warning(
-                    "⚠️ Aucun document trouvé, tentative de charger dernier JSON...")
+                    "Aucun document trouvé, tentative de charger dernier JSON...")
                 transform_docs = FileUtils.load_last_jsonl("data")
                 if not transform_docs:
                     raise ValueError(
@@ -126,4 +126,4 @@ def run_reviews_etl(
             logger.success("Chargement Elasticsearch terminé")
         except Exception as e:
             logger.exception(
-                f"❌ Erreur lors du chargement Elasticsearch : {e}")
+                f"✖ Erreur lors du chargement Elasticsearch : {e}")

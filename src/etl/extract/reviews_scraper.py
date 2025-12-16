@@ -19,7 +19,7 @@ from config.config import ENTERPRISES
 
 client = HttpClient.get_client()
 
-logger.info(f"🏢 Entreprises configurées : {[e['enterprise_url'] for e in ENTERPRISES]}")
+logger.info(f"Entreprises configurées : {[e['enterprise_url'] for e in ENTERPRISES]}")
 
 async def get_reviews_url_api(url_base: str) -> str:
     """

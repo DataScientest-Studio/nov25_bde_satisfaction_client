@@ -151,7 +151,7 @@ class FileUtils:
             filepath = Path("data") / f"{filename}_{FileUtils.get_timestamp()}.json"
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
-            logger.info(f"💾 Fichier JSON sauvegardé : {filepath}")
+            logger.info(f"Fichier JSON sauvegardé : {filepath}")
             return filepath
         except Exception as e:
             logger.error(f"Erreur lors de la sauvegarde JSON {filename} : {e}")
