@@ -59,6 +59,7 @@ def predict_sentiment(text):
     }
 
 
+# TODO: A retirer plus tard, juste pour tester la fonction
 if __name__ == "__main__":
     text = input("Entre un avis : ")
     result = predict_sentiment(text)
