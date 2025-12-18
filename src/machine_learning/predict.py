@@ -1,27 +1,93 @@
-# contient le tokenizer et le modèle de sentiment
 from typing import Dict
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-# sert à faire les calculs du modèle
-import torch
+from transformers import pipeline, logging
 from src.etl.utils.data_utils import DataUtils
+
+# Désactive les messages info de Transformers
+logging.set_verbosity_error()
+
+
+def convert_stars_to_sentiment(label: str) -> str:
+    """
+    Convertit une prédiction du modèle exprimée en étoiles
+    (1 à 5 étoiles) en un sentiment textuel simplifié.
+
+    Les correspondances sont les suivantes :
+    - 1 ou 2 étoiles → NEGATIF
+    - 3 étoiles      → NEUTRE
+    - 4 ou 5 étoiles → POSITIF
+
+    Cette fonction permet de normaliser la sortie du modèle
+    de sentiment en trois catégories exploitables.
+
+    Parameters
+    ----------
+    label : str
+        Label retourné par le modèle Hugging Face
+        (ex. "1 star", "3 stars", "5 stars").
+
+    Returns
+    -------
+    str
+        Sentiment normalisé : "NEGATIF", "NEUTRE" ou "POSITIF".
+
+    Raises
+    ------
+    ValueError
+        Si le label fourni ne correspond pas à une valeur attendue.
+
+    """
+    label = label.upper()
+
+    if label in ["1 STAR", "2 STARS"]:
+        return "NEGATIF"
+    elif label == "3 STARS":
+        return "NEUTRE"
+    elif label in ["4 STARS", "5 STARS"]:
+        return "POSITIF"
+    else:
+        raise ValueError(f"Label inattendu : {label}")
 
 
 def predict_sentiment(text: str) -> Dict[str, str]:
     """
-    Prédit le sentiment d'un avis utilisateur à l'aide d'un modèle de NLP
-    (Natural Language Processing - Traitement du langage naturel).
+    Prédit le sentiment d'un avis utilisateur à partir d'un modèle
+    de traitement du langage naturel (NLP).
+
+    Le modèle utilisé est :
+    - cmarkea/distilcamembert-base-sentiment (Hugging Face)
+
+    Le modèle est entrainé à prédire une note de 1 à 5 étoiles à partir d'un texte.
+    Ensuite, dans le code y a une étape de normalisation qui convertit ces
+    notes en trois catégories de sentiment :
+    - NEGATIF (1-2 étoiles)
+    - NEUTRE  (3 étoiles)
+    - POSITIF (4-5 étoiles)
+
+    Le modèle est chargé via `pipeline()` avec un tokenizer lent
+    (`use_fast=False`) afin d'assurer la compatibilité sous Windows.
+
+    Lors de la première exécution en local sur la machine, les fichiers du modèle
+    et du tokenizer sont téléchargés et stockés dans le cache local de Hugging Face
+    sur le disque. Lors des exécutions suivantes du script, ces fichiers sont
+    automatiquement réutilisés depuis le cache local et ne sont pas
+    retéléchargés.
 
     Parameters
     ----------
     text : str
-        Texte brut à analyser (avis utilisateur).
+        Texte brut correspondant à un avis utilisateur.
 
     Returns
     -------
     Dict[str, str]
         Dictionnaire contenant :
         - text_clean : texte nettoyé utilisé pour la prédiction
-        - sentiment  : sentiment prédit
+        - sentiment  : sentiment prédit (POSITIVE, NEUTRAL ou NEGATIVE)
+
+    Raises
+    ------
+    ValueError
+        Si le texte fourni est vide ou invalide après nettoyage.
     """
 
     text_clean = DataUtils.clean_text(text)
@@ -29,47 +95,30 @@ def predict_sentiment(text: str) -> Dict[str, str]:
     if not text_clean:
         raise ValueError("L'avis fourni est vide ou non valide.")
 
-    model_name = "tabularisai/multilingual-sentiment-analysis"
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_name, local_files_only=True)
-    model = AutoModelForSequenceClassification.from_pretrained(
-        model_name, local_files_only=True)
-
-    sentiment_map = {
-        0: "Très négatif",
-        1: "Négatif",
-        2: "Neutre",
-        3: "Positif",
-        4: "Très positif"
-    }
-
-    # Tokenisation du texte
-    inputs = tokenizer(
-        text_clean,
-        return_tensors="pt",
+    # Chargement du modèle de sentiment via pipeline
+    _model = pipeline(
+        task="sentiment-analysis",
+        model="cmarkea/distilcamembert-base-sentiment",
+        tokenizer="cmarkea/distilcamembert-base-sentiment",
+        # J'utilise use_fast=False pour éviter des erreurs d'installation sous Windows.
+        # Le modèle fonctionne de la même façon, mais de manière plus stable.
+        use_fast=False,
         truncation=True,
-        padding=True,
-        max_length=512
     )
 
-    # Passage du texte tokenisé dans le modèle
-    with torch.no_grad():
-        outputs = model(**inputs)
-
-    probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
-
-    # _ permet d'ignorer le score, seule la classe prediction est utilisé
-    _, prediction = torch.max(probabilities, dim=-1)
+    # Prédiction du sentiment
+    result = _model(text_clean, max_length=512)[0]
+    sentiment = convert_stars_to_sentiment(result["label"])
 
     return {
         "text_clean": text_clean,
-        "sentiment": sentiment_map[prediction.item()],
+        "sentiment": sentiment
     }
 
 
-# TODO: A retirer plus tard, juste pour tester la fonction
+# TODO: retirer ce bloc avant déploiement en production
 if __name__ == "__main__":
     text = input("Entre un avis : ")
     result = predict_sentiment(text)
-    print(f"Avis : {result['text_clean']}")
-    print(f"Sentiment : {result['sentiment']}")
+    print("Avis nettoyé :", result["text_clean"])
+    print("Sentiment :", result["sentiment"])
