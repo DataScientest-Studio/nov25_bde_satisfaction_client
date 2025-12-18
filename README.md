@@ -208,3 +208,4 @@ Champ temporel : Aucun
 | Data View introuvable | Mauvais pattern | Vérifier que le pattern est `reviews*` |
 | Problème de permissions | Volume Docker | `chmod -R 777 ./data` |
 | Erreur Docker sous Windows | Docker Desktop non démarré ou backend WSL2 inactif | Vérifier que **Docker Desktop** est démarré, que le backend **WSL2** est actif, puis relancer Docker Desktop. Message typique : `unable to get image docker.elastic.co/kibana/kibana:8.12.0 The system cannot find the file specified` |
+test
