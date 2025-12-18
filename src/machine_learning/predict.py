@@ -2,19 +2,7 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # sert à faire les calculs du modèle
 import torch
-
-
-model_name = "tabularisai/multilingual-sentiment-analysis"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSequenceClassification.from_pretrained(model_name)
-
-sentiment_map = {
-    0: "Très négatif",
-    1: "Négatif",
-    2: "Neutre",
-    3: "Positif",
-    4: "Très positif"
-}
+from src.etl.utils.data_utils import DataUtils
 
 
 def predict_sentiment(text):
@@ -25,7 +13,28 @@ def predict_sentiment(text):
     :param text: Texte à analyser (avis utilisateur)
 
     :return: Dictionnaire contenant le sentiment prédit et le score de confiance
+
     """
+
+    text_clean = DataUtils.clean_text(text)
+
+    if not text_clean:
+        raise ValueError("L'avis fourni est vide ou non valide.")
+
+    model_name = "tabularisai/multilingual-sentiment-analysis"
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name, local_files_only=True)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_name, local_files_only=True)
+
+    sentiment_map = {
+        0: "Très négatif",
+        1: "Négatif",
+        2: "Neutre",
+        3: "Positif",
+        4: "Très positif"
+    }
+
     # Tokenisation du texte
     inputs = tokenizer(
         text,
