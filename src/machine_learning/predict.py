@@ -1,19 +1,22 @@
 # contient le tokenizer et le modèle de sentiment
+from typing import Dict
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # sert à faire les calculs du modèle
 import torch
 from src.etl.utils.data_utils import DataUtils
 
 
-def predict_sentiment(text):
+def predict_sentiment(text: str) -> Dict[str, str]:
     """
     Prédit le sentiment d'un texte à l'aide d'un modèle de NLP (Natural Language Processing => 
     Traitement du langage naturel).
 
-    :param text: Texte à analyser (avis utilisateur)
+    :param text (str): Texte brut à analyser (avis utilisateur).
 
-    :return: Dictionnaire contenant le sentiment prédit et le score de confiance
-
+    :return:
+        Dict[str, str] : Dictionnaire contenant :
+            - "text_clean" : texte nettoyé utilisé pour la prédiction
+            - "sentiment" : sentiment prédit par le modèle (Très négatif, Négatif, Neutre, Positif, Très positif)
     """
 
     text_clean = DataUtils.clean_text(text)
