@@ -8,15 +8,20 @@ from src.etl.utils.data_utils import DataUtils
 
 def predict_sentiment(text: str) -> Dict[str, str]:
     """
-    Prédit le sentiment d'un texte à l'aide d'un modèle de NLP (Natural Language Processing => 
-    Traitement du langage naturel).
+    Prédit le sentiment d'un avis utilisateur à l'aide d'un modèle de NLP
+    (Natural Language Processing - Traitement du langage naturel).
 
-    :param text (str): Texte brut à analyser (avis utilisateur).
+    Parameters
+    ----------
+    text : str
+        Texte brut à analyser (avis utilisateur).
 
-    :return:
-        Dict[str, str] : Dictionnaire contenant :
-            - "text_clean" : texte nettoyé utilisé pour la prédiction
-            - "sentiment" : sentiment prédit par le modèle (Très négatif, Négatif, Neutre, Positif, Très positif)
+    Returns
+    -------
+    Dict[str, str]
+        Dictionnaire contenant :
+        - text_clean : texte nettoyé utilisé pour la prédiction
+        - sentiment  : sentiment prédit
     """
 
     text_clean = DataUtils.clean_text(text)
