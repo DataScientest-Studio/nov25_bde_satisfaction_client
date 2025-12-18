@@ -37,7 +37,7 @@ def predict_sentiment(text):
 
     # Tokenisation du texte
     inputs = tokenizer(
-        text,
+        text_clean,
         return_tensors="pt",
         truncation=True,
         padding=True,
@@ -54,7 +54,7 @@ def predict_sentiment(text):
     _, prediction = torch.max(probabilities, dim=-1)
 
     return {
-        "text": text,
+        "text_clean": text_clean,
         "sentiment": sentiment_map[prediction.item()],
     }
 
@@ -63,5 +63,5 @@ def predict_sentiment(text):
 if __name__ == "__main__":
     text = input("Entre un avis : ")
     result = predict_sentiment(text)
-    print(f"Avis : {text}")
+    print(f"Avis : {result['text_clean']}")
     print(f"Sentiment : {result['sentiment']}")
