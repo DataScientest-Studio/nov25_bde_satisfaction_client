@@ -12,9 +12,9 @@ def convert_stars_to_sentiment(label: str) -> str:
     (1 à 5 étoiles) en un sentiment textuel simplifié.
 
     Les correspondances sont les suivantes :
-    - 1 ou 2 étoiles → NEGATIF
-    - 3 étoiles      → NEUTRE
-    - 4 ou 5 étoiles → POSITIF
+    - 1 ou 2 étoiles => NEGATIF
+    - 3 étoiles      => NEUTRE
+    - 4 ou 5 étoiles => POSITIF
 
     Cette fonction permet de normaliser la sortie du modèle
     de sentiment en trois catégories exploitables.
@@ -23,7 +23,7 @@ def convert_stars_to_sentiment(label: str) -> str:
     ----------
     label : str
         Label retourné par le modèle Hugging Face
-        (ex. "1 star", "3 stars", "5 stars").
+        ("1 star", "3 stars", "5 stars").
 
     Returns
     -------
@@ -63,8 +63,8 @@ def predict_sentiment(text: str) -> Dict[str, str]:
     - NEUTRE  (3 étoiles)
     - POSITIF (4-5 étoiles)
 
-    Le modèle est chargé via `pipeline()` avec un tokenizer lent
-    (`use_fast=False`) afin d'assurer la compatibilité sous Windows.
+    Le modèle est chargé via "pipeline()" avec un tokenizer lent
+    ("use_fast=False") afin d'assurer la compatibilité sous Windows.
 
     Lors de la première exécution en local sur la machine, les fichiers du modèle
     et du tokenizer sont téléchargés et stockés dans le cache local de Hugging Face
