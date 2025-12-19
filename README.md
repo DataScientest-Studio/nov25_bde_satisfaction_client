@@ -125,17 +125,30 @@ python main.py --pages 10
 Depuis Kibana – Dev Tools :
 
 ```bash
+# Liste tous les indices
 GET /_cat/indices?v
 
+# Voir le mapping d'un index
 GET /reviews/_mapping
 
+# Compter le nombre de documents
 GET /reviews/_count
 
+# Récupére tous les documents
 GET /reviews/_search
 {
   "query": {
     "match_all": {}
   }
+}
+
+# Récupére les 3 dernières reviews les plus récents
+GET reviews/_search
+{
+  "size": 3,
+  "sort": [
+    { "id_review": { "order": "desc" } }
+  ]
 }
 ```
 
