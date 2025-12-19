@@ -48,16 +48,19 @@ Les scripts de chargement Elasticsearch sont désactivés par défaut.
 ### 2.1 Création de l’environnement virtuel
 
 ```bash
+# Depuis la racine du projet
 python -m venv venv
-# macOS / Linux
+
+# Pour macOS / Linux
 source venv/bin/activate
-# Windows (PowerShell)
+
+# Pour Windows (PowerShell)
 .\venv\Scripts\activate
+
 # Installation des dépendances
 pip install --upgrade pip
+
 pip install -r requirements.txt
-# Lancement du pipeline
-python main.py --pages 10
 ```
 
 ---
@@ -73,6 +76,7 @@ Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker
 
 ```bash
 docker ps -a -q | xargs -r docker stop
+
 docker ps -a -q | xargs -r docker rm
 ```
 
@@ -92,18 +96,15 @@ docker volume ls -q | xargs -r docker volume rm
 
 ```bash
 docker compose down -v
+
 rm -rf ./data/*
+
 mkdir -p ./data
+
 chmod -R 777 ./data
 ```
 
 ### 3.2 Construction et lancement du stack
-
-- Construire l’image applicative
-
-```bash
-docker compose build app
-```
 
 - Lancer Elasticsearch et Kibana
 
@@ -111,47 +112,30 @@ docker compose build app
 docker compose up -d
 ```
 
-- Exécuter le pipeline ETL
+- Exécuter le pipeline ETL (depuis `src\etl\`)
 
 ```bash
-docker compose run --rm app python main.py --pages 10
-```
-
-- Vérifier la création de l’indice
-
-```bash
-curl -X GET "http://localhost:9200/reviews/_mapping?pretty"
+python main.py --pages 10
 ```
 
 ---
 
 ## 4. Vérification des données
 
-Mapping :
-
-```bash
-curl http://localhost:9200/reviews/_mapping
-```
-
-Recherche simple :
-
-```bash
-curl -X GET "http://localhost:9200/reviews/_search?pretty" \
--H 'Content-Type: application/json' \
--d '{
-  "query": { "match_all": {} }
-}'
-```
-
 Depuis Kibana – Dev Tools :
 
 ```bash
 GET /_cat/indices?v
+
 GET /reviews/_mapping
+
 GET /reviews/_count
+
 GET /reviews/_search
 {
-  "size": 5
+  "query": {
+    "match_all": {}
+  }
 }
 ```
 
@@ -163,6 +147,7 @@ GET /reviews/_search
 
 ```bash
 Local : http://localhost:5601
+
 VM : http://<IP_PUBLIQUE_VM>:5601
 ```
 
@@ -201,7 +186,8 @@ Champ temporel : Aucun
    docker compose up -d
    ```
 2. Accéder à Elastic/Kibana :
-   http://localhost:5601/app/home#/
+   Local : http://localhost:5601/app/home#/
+   VM : http://<IP_PUBLIQUE_VM>:5601/app/home#/
 
 3. Importer les objets sauvegardés (depuis le menu hamburger) :
 

@@ -1,5 +1,17 @@
+# File: src\etl\load\elasticsearch_bulk_loader.py
 
-# dictionnaire pour typer mes attributs
+"""
+Module pour le mapping Elasticsearch pour les avis clients.
+
+Ce module expose le dictionnaire `MAPPING_REVIEWS`, utilisé pour créer
+ou valider l'index Elasticsearch lors de la phase de chargement (Load)
+du pipeline ETL.
+
+Tous les champs sont typés explicitement et le mode `dynamic: strict`
+empêche l'indexation de champs non déclarés.
+"""
+
+# Dictionnaire pour typer mes attributs
 MAPPING_REVIEWS = {
     "dynamic": "strict",
     "properties": {

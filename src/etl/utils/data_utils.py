@@ -1,4 +1,4 @@
-# File: utils/data_utils.py
+# File: src\etl\utils\data_utils.py
 
 """
 Module Utilitaires pour nettoyer, convertir et formater des données.
@@ -26,7 +26,7 @@ class DataUtils:
         Cette méthode prend en entrée un texte brut, supprime les espaces en excès, normalise les caractères Unicode
         pour uniformiser les caractères spéciaux, puis tronque le texte si sa longueur dépasse la valeur spécifiée.
 
-        Paramètres:
+        Parameters
         -----------
         text : str, optionnel
             Le texte à nettoyer. Si 'None' ou une chaîne vide est passé, la méthode retourne 'None'.
@@ -34,13 +34,13 @@ class DataUtils:
         max_length : int, optionnel
             La longueur maximale du texte après nettoyage. Par défaut, elle est de 5000 caractères.
 
-        Retourne:
+        Returns
         --------
         str, optionnel
             Le texte nettoyé et tronqué, ou 'None' si le texte d'origine est vide ou non valide (par exemple, si aucun 
             caractère alphanumérique n'est trouvé).
         
-        Lève:
+        Raises
         -----
         Exception
             Si un texte non valide est fourni, comme une chaîne qui ne contient pas de caractères alphanumériques, 
@@ -64,7 +64,7 @@ class DataUtils:
         Cette méthode tente de convertir la valeur d'entrée en float. Si la conversion échoue, elle renvoie la valeur 
         par défaut spécifiée.
 
-        Paramètres:
+        Parameters
         -----------
         value : Any
             La valeur à convertir en float. Elle peut être de tout type (str, int, etc.).
@@ -72,12 +72,12 @@ class DataUtils:
         default : float, optionnel
             La valeur retournée si la conversion échoue. Par défaut, elle est de '0.0'.
 
-        Retourne:
+        Returns
         --------
         float
             La valeur convertie en float, ou la valeur par défaut si la conversion échoue.
 
-        Lève:
+        Raises
         -----
         Exception
             Si la valeur ne peut pas être convertie en float et que la conversion échoue, la valeur par défaut est
@@ -96,7 +96,7 @@ class DataUtils:
         Cette méthode tente de convertir la valeur d'entrée en entier (int). Si la conversion échoue, elle renvoie la 
         valeur par défaut spécifiée.
 
-        Paramètres:
+        Parameters
         -----------
         value : Any
             La valeur à convertir en entier (int). Elle peut être de tout type (str, float, etc.).
@@ -104,12 +104,12 @@ class DataUtils:
         default : int, optionnel
             La valeur retournée si la conversion échoue. Par défaut, elle est de '0'.
 
-        Retourne:
+        Returns
         --------
         int
             La valeur convertie en entier, ou la valeur par défaut si la conversion échoue.
 
-        Lève:
+        Raises
         -----
         Exception
             Si la valeur ne peut pas être convertie en int et que la conversion échoue, la valeur par défaut est
@@ -129,17 +129,17 @@ class DataUtils:
         '2023-12-12T14:25:00Z'), et la convertit en une chaîne de format 'YYYY-MM-DD'. Si la date est invalide ou 
         mal formatée, la méthode retourne 'None'.
 
-        Paramètres:
+        Parameters
         -----------
         date_str : str, optionnel
             La chaîne de caractères représentant la date à convertir. Si 'None' est passé, la méthode retourne 'None'.
 
-        Retourne:
+        Returns
         --------
         str, optionnel
             La date formatée en 'YYYY-MM-DD', ou 'None' si la chaîne de date est invalide.
 
-        Lève:
+        Raises
         -----
         Exception
             Si la date est mal formatée et qu'elle ne peut pas être convertie, la méthode retourne 'None'.

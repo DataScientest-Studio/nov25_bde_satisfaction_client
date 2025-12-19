@@ -1,4 +1,4 @@
-# File: utils/files_utils.py
+# File: src\etl\utils\files_utils.py
 
 """
 Module utilitaire pour gérer les opérations de fichiers : chargement, lecture, écriture, et génération de timestamps.
@@ -26,12 +26,12 @@ class FileUtils:
 
         Cette méthode génère un timestamp qui peut être utilisé pour nommer des fichiers de manière unique.
 
-        Retourne:
+        Parameters
         --------
         str
             Le timestamp au format 'YYYYMMDD_HHMMSS' (ex : '20231212_143000').
 
-        Lève:
+        Raises
         -----
         Aucune exception levée. La méthode retourne simplement un timestamp formaté.
         """
@@ -42,17 +42,17 @@ class FileUtils:
         """
         Charge et retourne le contenu d'un fichier SQL spécifié par son chemin.
 
-        Paramètres:
+        Parameters
         -----------
         path : str
             Le chemin vers le fichier SQL à charger.
 
-        Retourne:
+        Returns
         --------
         str
             Le contenu du fichier SQL sous forme de chaîne de caractères.
 
-        Lève:
+        Raises
         -----
         FileNotFoundError
             Si le fichier n'est pas trouvé à l'emplacement spécifié.
@@ -77,17 +77,17 @@ class FileUtils:
         Cette méthode parcourt le dossier donné, identifie le fichier JSONL le plus récent (basé sur la date de 
         modification) et charge son contenu sous forme de liste de dictionnaires.
 
-        Paramètres:
+        Parameters
         -----------
         folder : str
             Le chemin du dossier contenant les fichiers JSONL.
 
-        Retourne:
+        Returns
         --------
         List[Dict]
             Une liste de dictionnaires contenant les données lues depuis le dernier fichier JSONL.
 
-        Lève:
+        Raises
         -----
         FileNotFoundError
             Si aucun fichier JSONL n'est trouvé dans le dossier.

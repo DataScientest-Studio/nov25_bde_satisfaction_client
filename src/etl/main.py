@@ -1,4 +1,4 @@
-# File: main.py
+# File: src\etl\main.py
 
 """
 Main script

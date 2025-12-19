@@ -1,4 +1,4 @@
-# File: utils/http_client.py
+# File: src\etl\utils\http_client.py
 
 """
 Module pour la gestion d'un client HTTP asynchrone unique basé sur 'httpx.AsyncClient'.
@@ -27,12 +27,12 @@ class HttpClient:
         Cette méthode crée une instance d''AsyncClient' si elle n'existe pas déjà et la retourne. L'instance utilise 
         HTTP/2 et des en-têtes personnalisés pour les requêtes HTTP, avec un délai d'attente de 30 secondes par défaut.
 
-        Retourne:
+        Parameters
         --------
         AsyncClient
             L'instance de 'AsyncClient' utilisée pour effectuer les requêtes HTTP.
 
-        Lève:
+        Raises
         -----
         Exception
             Si une erreur se produit lors de la création du client HTTP.

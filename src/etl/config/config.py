@@ -1,4 +1,4 @@
-# File: config/config.py
+# File: src\etl\config\config.py
 
 """
 Module pour configurer les constantes pour l'ETL (Elasticsearch et entreprises)

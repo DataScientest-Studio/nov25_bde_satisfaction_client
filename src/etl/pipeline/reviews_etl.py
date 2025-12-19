@@ -1,4 +1,4 @@
-# File: pipeline/reviews_etl.py
+# File: src\etl\pipeline\reviews_etl.py
 
 """
 Module pour exécuter l'ETL des avis Trustpilot (extraction, transformation, sauvegarde et chargement).
@@ -35,7 +35,7 @@ def run_reviews_etl(
     Chaque étape peut être activée ou désactivée en fonction des besoins via les paramètres 'do_extract',
     'do_transform', 'do_save', et 'do_load'.
 
-    Paramètres:
+    Parameters
     -----------
     max_pages : int, optionnel
         Le nombre maximal de pages d'avis à extraire depuis Trustpilot. Par défaut, 1.
@@ -52,7 +52,7 @@ def run_reviews_etl(
     do_load : bool, optionnel
         Si 'True', les documents transformés sont chargés dans Elasticsearch via l'API 'bulk'. Par défaut, 'False'.
 
-    Lève:
+    Raises
     -----
     Exception
         Si une erreur se produit à n'importe quelle étape du pipeline (extraction, transformation, sauvegarde, chargement).
