@@ -63,9 +63,6 @@ def predict_sentiment(text: str) -> Dict[str, str]:
     - NEUTRE  (3 étoiles)
     - POSITIF (4-5 étoiles)
 
-    Le modèle est chargé via "pipeline()" avec un tokenizer lent
-    ("use_fast=False") afin d'assurer la compatibilité sous Windows.
-
     Lors de la première exécution en local sur la machine, les fichiers du modèle
     et du tokenizer sont téléchargés et stockés dans le cache local de Hugging Face
     sur le disque. Lors des exécutions suivantes du script, ces fichiers sont
@@ -100,9 +97,6 @@ def predict_sentiment(text: str) -> Dict[str, str]:
         task="sentiment-analysis",
         model="cmarkea/distilcamembert-base-sentiment",
         tokenizer="cmarkea/distilcamembert-base-sentiment",
-        # J'utilise use_fast=False pour éviter des erreurs d'installation sous Windows.
-        # Le modèle fonctionne de la même façon, mais de manière plus stable.
-        use_fast=False,
         truncation=True,
     )
 
