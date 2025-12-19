@@ -8,6 +8,8 @@ pandas
 parsel
 pathlib
 python-dateutil
+sentencepiece
+torch
 transformers
 typing-extensions
 urllib3==2.6.2
