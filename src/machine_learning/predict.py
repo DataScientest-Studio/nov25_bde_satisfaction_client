@@ -108,11 +108,3 @@ def predict_sentiment(text: str) -> Dict[str, str]:
         "text_clean": text_clean,
         "sentiment": sentiment
     }
-
-
-# TODO: retirer ce bloc avant déploiement en production
-if __name__ == "__main__":
-    text = input("Entre un avis : ")
-    result = predict_sentiment(text)
-    print("Avis nettoyé :", result["text_clean"])
-    print("Sentiment :", result["sentiment"])
