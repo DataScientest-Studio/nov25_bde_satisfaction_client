@@ -5,6 +5,15 @@ from src.etl.utils.data_utils import DataUtils
 # Désactive les messages info de Transformers
 logging.set_verbosity_error()
 
+# Chargement du modèle de sentiment via pipeline
+# (en dehors de la fonction pour éviter de le recharger à chaque appel dans fastAPI par exemple)
+_model = pipeline(
+    task="sentiment-analysis",
+    model="cmarkea/distilcamembert-base-sentiment",
+    tokenizer="cmarkea/distilcamembert-base-sentiment",
+    truncation=True,
+)
+
 
 def convert_stars_to_sentiment(label: str) -> str:
     """
@@ -91,14 +100,6 @@ def predict_sentiment(text: str) -> Dict[str, str]:
 
     if not text_clean:
         raise ValueError("L'avis fourni est vide ou non valide.")
-
-    # Chargement du modèle de sentiment via pipeline
-    _model = pipeline(
-        task="sentiment-analysis",
-        model="cmarkea/distilcamembert-base-sentiment",
-        tokenizer="cmarkea/distilcamembert-base-sentiment",
-        truncation=True,
-    )
 
     # Prédiction du sentiment
     result = _model(text_clean, max_length=512)[0]
