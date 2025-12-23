@@ -17,7 +17,15 @@ MAPPING_REVIEWS = {
     "properties": {
         "id_review": {"type": "keyword"},
         "is_verified": {"type": "boolean"},
+
+        # Dates métier
         "date_review": {"type": "date"},
+        "date_response": {"type": "date"},
+
+        # Timestamps techniques
+        "created_at": {"type": "date"},
+        "updated_at": {"type": "date"},
+
         "id_user": {"type": "keyword"},
         "user_name": {
             "type": "text",
@@ -26,7 +34,7 @@ MAPPING_REVIEWS = {
         "user_review": {"type": "text"},
         "user_review_length": {"type": "integer"},
         "user_rating": {"type": "float"},
-        "date_response": {"type": "date"},
+
         "enterprise_name": {
             "type": "text",
             "fields": {"raw": {"type": "keyword"}}
