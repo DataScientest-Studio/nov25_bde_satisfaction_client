@@ -1,3 +1,12 @@
+# File: src\api\main.py
+
+"""
+Module principal de l'application FastAPI.
+
+Ce module initialise l'application FastAPI, configure les métadonnées
+(titre, description, version) et inclut les routes de l'API.
+"""
+
 from fastapi import FastAPI
 from src.api.routes import predict
 
