@@ -31,7 +31,14 @@ MAPPING_REVIEWS = {
             "type": "text",
             "fields": {"raw": {"type": "keyword"}}
         },
-        "user_review": {"type": "text"},
+        
+        "user_review": {
+            "type": "text",
+            "fields": {
+                "raw": {"type": "keyword"}
+            }
+        },
+
         "user_review_length": {"type": "integer"},
         "user_rating": {"type": "float"},
 

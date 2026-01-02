@@ -27,7 +27,7 @@ def convert_stars_to_sentiment(label: str) -> str:
     (1 à 5 étoiles) en un sentiment textuel simplifié.
 
     Les correspondances sont les suivantes :
-    - 1 ou 2 étoiles => NEGATIF
+    - 1 ou 2 étoiles => NÉGATIF
     - 3 étoiles      => NEUTRE
     - 4 ou 5 étoiles => POSITIF
 
@@ -43,7 +43,7 @@ def convert_stars_to_sentiment(label: str) -> str:
     Returns
     -------
     str
-        Sentiment normalisé : "NEGATIF", "NEUTRE" ou "POSITIF".
+        Sentiment normalisé : "NÉGATIF", "NEUTRE" ou "POSITIF".
 
     Raises
     ------
@@ -54,7 +54,7 @@ def convert_stars_to_sentiment(label: str) -> str:
     label = label.upper()
 
     if label in ["1 STAR", "2 STARS"]:
-        return "NEGATIF"
+        return "NÉGATIF"
     elif label == "3 STARS":
         return "NEUTRE"
     elif label in ["4 STARS", "5 STARS"]:
@@ -74,7 +74,7 @@ def predict_sentiment(text: str) -> Dict[str, str]:
     Le modèle est entrainé à prédire une note de 1 à 5 étoiles à partir d'un texte.
     Ensuite, dans le code y a une étape de normalisation qui convertit ces
     notes en trois catégories de sentiment :
-    - NEGATIF (1-2 étoiles)
+    - NÉGATIF (1-2 étoiles)
     - NEUTRE  (3 étoiles)
     - POSITIF (4-5 étoiles)
 

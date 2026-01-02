@@ -4,7 +4,7 @@
 Module FastAPI pour la prédiction de sentiment des avis clients.
 
 Ce module expose un endpoint permettant d'analyser un texte d'avis client
-et de retourner un sentiment (NEGATIF, NEUTRE ou POSITIF) à l'aide
+et de retourner un sentiment (NÉGATIF, NEUTRE ou POSITIF) à l'aide
 d'un modèle de Machine Learning.
 """
 
@@ -22,7 +22,7 @@ router = APIRouter()
 @router.post(
     "/predict",
     summary="Prédire le sentiment d'un avis client",
-    description="Cette endpoint prend en entrée un texte d'avis client et retourne le sentiment prédit (NEGATIF, NEUTRE, POSITIF).",
+    description="Cette endpoint prend en entrée un texte d'avis client et retourne le sentiment prédit (NÉGATIF, NEUTRE, POSITIF).",
     response_description="Le sentiment prédit de l'avis client",
     response_model=PredictResponse,
 )
@@ -33,7 +33,7 @@ def predict(request: PredictRequest) -> PredictResponse:
 
     Cette fonction reçoit un texte d'avis client via une requête HTTP,
     appelle le modèle de Machine Learning pour effectuer la prédiction,
-    puis retourne le sentiment associé (NEGATIF, NEUTRE ou POSITIF).
+    puis retourne le sentiment associé (NÉGATIF, NEUTRE ou POSITIF).
 
     Si le texte fourni est vide ou invalide, une erreur HTTP 400 est levée.
 
@@ -47,7 +47,7 @@ def predict(request: PredictRequest) -> PredictResponse:
     PredictResponse
         Objet contenant :
         - text_clean : texte nettoyé utilisé pour la prédiction
-        - sentiment  : sentiment prédit (NEGATIF, NEUTRE ou POSITIF)
+        - sentiment  : sentiment prédit (NÉGATIF, NEUTRE ou POSITIF)
 
     Raises
     ------

@@ -23,7 +23,8 @@ Si vous exécutez le pipeline **localement**, vous devez **commenter la partie �
 3. [Exécution avec Docker Compose](#3-exécution-avec-docker-compose)
 4. [Vérification des données](#4-vérification-des-données)
 5. [Kibana – Data View et Dashboard](#5-kibana--création-dune-vue-et-dun-tableau-de-bord)
-6. [Dépannage & problèmes fréquents](#6-dépannage--problèmes-fréquents)
+6. [Accès à l’application Streamlit (Frontend)](#6-accès-à-lapplication-streamlit-frontend)
+7. [Dépannage & problèmes fréquents](#7-dépannage--problèmes-fréquents)
 
 ---
 
@@ -47,21 +48,21 @@ Les scripts de chargement Elasticsearch sont désactivés par défaut.
 
 ### 2.1 Création de l’environnement virtuel
 
-```bash
-# Depuis la racine du projet
-python -m venv venv
+   ```bash
+   # Depuis la racine du projet
+   python -m venv venv
 
-# Pour macOS / Linux
-source venv/bin/activate
+   # Pour macOS / Linux
+   source venv/bin/activate
 
-# Pour Windows (PowerShell)
-.\venv\Scripts\activate
+   # Pour Windows (PowerShell)
+   .\venv\Scripts\activate
 
-# Installation des dépendances
-pip install --upgrade pip
+   # Installation des dépendances
+   pip install --upgrade pip
 
-pip install -r requirements.txt
-```
+   pip install -r requirements.txt
+   ```
 
 ---
 
@@ -73,50 +74,57 @@ pip install -r requirements.txt
 Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker.
 
 # Arrêt et suppression des conteneurs
+Depuis `src\docker\`
 
-```bash
-docker ps -a -q | xargs -r docker stop
+   ```bash
+   docker ps -a -q | xargs -r docker stop
 
-docker ps -a -q | xargs -r docker rm
-```
+   docker ps -a -q | xargs -r docker rm
+   ```
 
 # Suppression des images
+Depuis `src\docker\`
 
-```bash
-docker images -q | xargs -r docker rmi -f
-```
+   ```bash
+   docker images -q | xargs -r docker rmi -f
+   ```
 
 # Suppression des volumes
+Depuis `src\docker\`
 
-```bash
-docker volume ls -q | xargs -r docker volume rm
-```
+   ```bash
+   docker volume ls -q | xargs -r docker volume rm
+   ```
 
 # Nettoyage du dossier data
+Depuis `src\docker\`
 
-```bash
-docker compose down -v
+   ```bash
+   docker compose down -v
 
-rm -rf ./data/*
+   rm -rf ./data/*
 
-mkdir -p ./data
+   mkdir -p ./data
 
-chmod -R 777 ./data
-```
+   chmod -R 777 ./data
+   ```
 
 ### 3.2 Construction et lancement du stack
 
-- Lancer Elasticsearch et Kibana
+# Docker Compose
+Depuis `src\docker\`
 
-```bash
-docker compose up -d
-```
+   ```bash
+   docker compose build
+   docker compose up -d
+   ```
 
-- Exécuter le pipeline ETL (depuis `src\etl\`)
+# Pipeline ETL
+Depuis `src\etl\`
 
-```bash
-python main.py --pages 10
-```
+   ```bash
+   python main.py --pages 10
+   ```
 
 ---
 
@@ -124,33 +132,33 @@ python main.py --pages 10
 
 Depuis Kibana – Dev Tools :
 
-```bash
-# Liste tous les indices
-GET /_cat/indices?v
+   ```bash
+   # Liste tous les indices
+   GET /_cat/indices?v
 
-# Voir le mapping d'un index
-GET /reviews/_mapping
+   # Voir le mapping d'un index
+   GET /reviews/_mapping
 
-# Compter le nombre de documents
-GET /reviews/_count
+   # Compter le nombre de documents
+   GET /reviews/_count
 
-# Récupére tous les documents
-GET /reviews/_search
-{
-  "query": {
-    "match_all": {}
-  }
-}
+   # Récupére tous les documents
+   GET /reviews/_search
+   {
+   "query": {
+      "match_all": {}
+   }
+   }
 
-# Récupére les 3 dernières reviews les plus récents
-GET reviews/_search
-{
-  "size": 3,
-  "sort": [
-    { "id_review": { "order": "desc" } }
-  ]
-}
-```
+   # Récupére les 3 dernières reviews les plus récents
+   GET reviews/_search
+   {
+   "size": 3,
+   "sort": [
+      { "id_review": { "order": "desc" } }
+   ]
+   }
+   ```
 
 ---
 
@@ -158,19 +166,18 @@ GET reviews/_search
 
 ### 5.1 Accès à Kibana
 
-```bash
-Local : http://localhost:5601
-
-VM : http://<IP_PUBLIQUE_VM>:5601
-```
+   ```bash
+   Local : http://localhost:5601
+   VM : http://<IP_PUBLIQUE_VM>:5601
+   ```
 
 ### 5.2 Création d’une Data View
 
-```bash
-Nom : NOV25_BDE_SATISFACTION_CLIENT
-Index pattern : reviews*
-Champ temporel : Aucun
-```
+   ```bash
+   Nom : NOV25_BDE_SATISFACTION_CLIENT
+   Index pattern : reviews*
+   Champ temporel : Aucun
+   ```
 
 ### 5.3 Visualisation
 
@@ -222,7 +229,16 @@ Champ temporel : Aucun
 
 ---
 
-## 6. Dépannage & problèmes fréquents
+## 6. Accès à l’application Streamlit (Frontend)
+
+   ```bash
+   Local : http://localhost:8501
+   VM : http://<IP_PUBLIQUE_VM>:8501
+   ```
+
+---
+
+## 7. Dépannage & problèmes fréquents
 
 | Problème                           | Cause probable                                     | Solution                                                                                                                                                                                                                               |
 | ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
