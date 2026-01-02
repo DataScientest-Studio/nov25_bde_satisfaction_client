@@ -10,7 +10,7 @@ les informations sont nettoyées et formatées pour une insertion efficace dans 
 
 import math
 from typing import Dict, Any, List
-from utils.data_utils import DataUtils
+from src.etl.utils.data_utils import DataUtils
 
 
 def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

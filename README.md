@@ -24,7 +24,8 @@ Si vous exécutez le pipeline **localement**, vous devez **commenter la partie �
 4. [Vérification des données](#4-vérification-des-données)
 5. [Kibana – Data View et Dashboard](#5-kibana--création-dune-vue-et-dun-tableau-de-bord)
 6. [Accès à l’application Streamlit (Frontend)](#6-accès-à-lapplication-streamlit-frontend)
-7. [Dépannage & problèmes fréquents](#7-dépannage--problèmes-fréquents)
+7. [Tests Unitaires](#7-tests-unitaires)
+8. [Dépannage & problèmes fréquents](#8-dépannage--problèmes-fréquents)
 
 ---
 
@@ -74,56 +75,51 @@ Les scripts de chargement Elasticsearch sont désactivés par défaut.
 Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker.
 
 # Arrêt et suppression des conteneurs
-Depuis `src\docker\`
 
    ```bash
+   cd src\docker
    docker ps -a -q | xargs -r docker stop
-
    docker ps -a -q | xargs -r docker rm
    ```
 
 # Suppression des images
-Depuis `src\docker\`
 
    ```bash
+   cd src\docker
    docker images -q | xargs -r docker rmi -f
    ```
 
 # Suppression des volumes
-Depuis `src\docker\`
 
    ```bash
+   cd src\docker
    docker volume ls -q | xargs -r docker volume rm
    ```
 
 # Nettoyage du dossier data
-Depuis `src\docker\`
 
    ```bash
+   cd src\docker
    docker compose down -v
-
    rm -rf ./data/*
-
    mkdir -p ./data
-
    chmod -R 777 ./data
    ```
 
 ### 3.2 Construction et lancement du stack
 
 # Docker Compose
-Depuis `src\docker\`
 
    ```bash
+   cd src\docker
    docker compose build
    docker compose up -d
    ```
 
 # Pipeline ETL
-Depuis `src\etl\`
 
    ```bash
-   python main.py --pages 10
+   python -m src.etl.main --pages 10
    ```
 
 ---
@@ -145,18 +141,18 @@ Depuis Kibana – Dev Tools :
    # Récupére tous les documents
    GET /reviews/_search
    {
-   "query": {
-      "match_all": {}
-   }
+      "query": {
+         "match_all": {}
+      }
    }
 
    # Récupére les 3 dernières reviews les plus récents
    GET reviews/_search
    {
-   "size": 3,
-   "sort": [
-      { "id_review": { "order": "desc" } }
-   ]
+      "size": 3,
+      "sort": [
+         { "id_review": { "order": "desc" } }
+      ]
    }
    ```
 
@@ -201,13 +197,19 @@ Depuis Kibana – Dev Tools :
 
 ⚠️ **Respecter impérativement l’ordre suivant :**
 
-1. Lancer l’infrastructure Docker (Elasticsearch + Kibana) depuis le dossier `src\docker` :
+1. Lancer l’infrastructure Docker (Elasticsearch + Kibana) :
+
    ```bash
+   cd src\docker
    docker compose up -d
    ```
+
 2. Accéder à Elastic/Kibana :
+
+   ```bash
    Local : http://localhost:5601/app/home#/
    VM : http://<IP_PUBLIQUE_VM>:5601/app/home#/
+   ```
 
 3. Importer les objets sauvegardés (depuis le menu hamburger) :
 
@@ -220,8 +222,7 @@ Depuis Kibana – Dev Tools :
 4. Exécuter le pipeline ETL afin de créer et alimenter l’indice reviews :
 
    ```bash
-    cd src\etl
-    python main.py --pages 10
+   python -m src.etl.main --pages 10
    ```
 
 5. Depuis Elastic/Kibana, aller dans Analytics :
@@ -238,7 +239,20 @@ Depuis Kibana – Dev Tools :
 
 ---
 
-## 7. Dépannage & problèmes fréquents
+## 7. Tests Unitaires
+
+### 7.1 Lancer les tests
+
+Les tests du projet sont réalisés avec pytest. Pour exécuter tous les tests,
+il suffit de se rendre à la racine du projet et de lancer la commande suivante :
+
+   ```bash
+   python -m pytest tests/
+   ```
+
+---
+
+## 8. Dépannage & problèmes fréquents
 
 | Problème                           | Cause probable                                     | Solution                                                                                                                                                                                                                               |
 | ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

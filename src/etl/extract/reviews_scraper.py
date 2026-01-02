@@ -14,8 +14,8 @@ import asyncio
 from typing import List, Dict
 from loguru import logger
 from parsel import Selector
-from utils.http_client import HttpClient
-from config.config import ENTERPRISES
+from src.etl.utils.http_client import HttpClient
+from src.etl.config.config import ENTERPRISES
 
 client = HttpClient.get_client()
 
@@ -64,7 +64,6 @@ async def get_reviews_url_api(url_base: str) -> str:
     except Exception as e:
         logger.exception(f"[get_reviews_url_api] Impossible de générer l'API URL pour {url_base}: {e}")
         raise
-
 
 async def scrape_reviews(url_base: str, max_pages: int = 1) -> List[Dict]:
     """

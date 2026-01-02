@@ -17,10 +17,10 @@ Fonctionnalités principales :
 
 from datetime import datetime, timezone
 from elasticsearch import Elasticsearch, helpers
-from elasticsearch.exceptions import ConnectionError
+from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 from typing import List, Dict, Any, Optional
 from loguru import logger
-from load.create_index_elasticsearch import create_index_if_not_exists
+from src.etl.load.create_index_elasticsearch import create_index_if_not_exists
 
 
 def load_reviews_to_elasticsearch_bulk(
@@ -52,11 +52,10 @@ def load_reviews_to_elasticsearch_bulk(
     try:
         es = Elasticsearch(es_host)
         if not es.ping():
-            raise ConnectionError("Impossible de se connecter à Elasticsearch")
-    except Exception as error:
-        logger.exception(
-            f"Impossible de se connecter à Elasticsearch: {error}")
-        raise
+            raise ElasticConnectionError("Impossible de se connecter à Elasticsearch")
+    except ElasticConnectionError as error:
+        logger.exception(f"Impossible de se connecter à Elasticsearch: {error}")
+        raise ElasticConnectionError(f"Impossible de se connecter à Elasticsearch: {error}")
 
     # Création de l'index si celui-ci n'existe pas déjà
     create_index_if_not_exists(es=es, index=index)
