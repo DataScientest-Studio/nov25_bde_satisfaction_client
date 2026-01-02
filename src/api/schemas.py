@@ -1,6 +1,10 @@
-from pydantic import BaseModel
+# File: src\api\schemas.py
 
-# Modèles de schéma pour les requêtes et réponses de l'API
+"""
+Module des schémas pour les requêtes et réponses de l'API
+"""
+
+from pydantic import BaseModel
 
 
 class PredictResponse(BaseModel):

@@ -1,3 +1,9 @@
+# File: src\machine_learning\predict.py
+
+"""
+Module pour la prédiction du sentiment d'avis utilisateurs.
+"""
+
 from typing import Dict
 from transformers import pipeline, logging
 from src.etl.utils.data_utils import DataUtils
