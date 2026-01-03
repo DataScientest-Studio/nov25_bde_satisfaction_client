@@ -107,10 +107,11 @@ Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker
    docker compose up -d
    ```
 
-# Pipeline ETL (à la racine du projet)
+# Pipeline ETL (depuis la racine du projet)
 
    ```bash
-   python3 -m etl.main --pages 10
+   cd src/etl
+   python3 -m main --pages 10
    ```
 
 ---
@@ -210,10 +211,11 @@ Depuis Kibana – Dev Tools :
    - Sélectionner le fichier .ndjson
    - Laisser les options par défaut
 
-4. Exécuter le pipeline ETL afin de créer et alimenter l’indice reviews :
+4. Exécuter le pipeline ETL depuis la racine du projet afin de créer et alimenter l’indice reviews :
 
    ```bash
-   python3 -m etl.main --pages 10
+   cd src/etl
+   python3 -m main --pages 10
    ```
 
 5. Depuis Elastic/Kibana, aller dans Analytics :
