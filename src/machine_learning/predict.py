@@ -6,7 +6,7 @@ Module pour la prédiction du sentiment d'avis utilisateurs.
 
 from typing import Dict
 from transformers import pipeline, logging
-from src.etl.utils.data_utils import DataUtils
+from etl.utils.data_utils import DataUtils
 
 # Désactive les messages info de Transformers
 logging.set_verbosity_error()

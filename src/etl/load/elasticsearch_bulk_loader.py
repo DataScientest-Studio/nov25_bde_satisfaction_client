@@ -20,7 +20,7 @@ from elasticsearch import Elasticsearch, helpers
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 from typing import List, Dict, Any, Optional
 from loguru import logger
-from src.etl.load.create_index_elasticsearch import create_index_if_not_exists
+from etl.load.create_index_elasticsearch import create_index_if_not_exists
 
 
 def load_reviews_to_elasticsearch_bulk(

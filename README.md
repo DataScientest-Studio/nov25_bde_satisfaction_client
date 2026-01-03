@@ -11,9 +11,6 @@ Le projet peut être exécuté de deux manières :
 | Local (sans Docker) | Débogage rapide, aucun service externe requis             |
 | Docker Compose      | Isolation des dépendances, idéal pour CI/CD et production |
 
-⚠️ **Important**
-Si vous exécutez le pipeline **localement**, vous devez **commenter la partie “Chargement dans Elasticsearch”** dans `etl/etl_reviews.py`, car Elasticsearch n’est pas lancé par défaut.
-
 ---
 
 ## Table des matières
@@ -38,10 +35,7 @@ Si vous exécutez le pipeline **localement**, vous devez **commenter la partie �
 | Docker Compose | 1.29+            | ✅          |
 | Elasticsearch  | 8.12+            | optionnel   |
 | Kibana         | 8.12+            | optionnel   |
-
-📌 **Remarque**
-Pour tester uniquement la logique ETL, **Python et les dépendances du `requirements.txt` suffisent**.
-Les scripts de chargement Elasticsearch sont désactivés par défaut.
+|**WSL UBUNTU**  |                  |             |
 
 ---
 
@@ -51,13 +45,10 @@ Les scripts de chargement Elasticsearch sont désactivés par défaut.
 
    ```bash
    # Depuis la racine du projet
-   python -m venv venv
+   python3 -m venv venv
 
    # Pour macOS / Linux
    source venv/bin/activate
-
-   # Pour Windows (PowerShell)
-   .\venv\Scripts\activate
 
    # Installation des dépendances
    pip install --upgrade pip
@@ -77,7 +68,7 @@ Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker
 # Arrêt et suppression des conteneurs
 
    ```bash
-   cd src\docker
+   cd src/docker
    docker ps -a -q | xargs -r docker stop
    docker ps -a -q | xargs -r docker rm
    ```
@@ -85,21 +76,21 @@ Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker
 # Suppression des images
 
    ```bash
-   cd src\docker
+   cd src/docker
    docker images -q | xargs -r docker rmi -f
    ```
 
 # Suppression des volumes
 
    ```bash
-   cd src\docker
+   cd src/docker
    docker volume ls -q | xargs -r docker volume rm
    ```
 
 # Nettoyage du dossier data
 
    ```bash
-   cd src\docker
+   cd src/docker
    docker compose down -v
    rm -rf ./data/*
    mkdir -p ./data
@@ -111,15 +102,15 @@ Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker
 # Docker Compose
 
    ```bash
-   cd src\docker
+   cd src/docker
    docker compose build
    docker compose up -d
    ```
 
-# Pipeline ETL
+# Pipeline ETL (à la racine du projet)
 
    ```bash
-   python -m src.etl.main --pages 10
+   python3 -m etl.main --pages 10
    ```
 
 ---
@@ -200,7 +191,7 @@ Depuis Kibana – Dev Tools :
 1. Lancer l’infrastructure Docker (Elasticsearch + Kibana) :
 
    ```bash
-   cd src\docker
+   cd src/docker
    docker compose up -d
    ```
 
@@ -222,7 +213,7 @@ Depuis Kibana – Dev Tools :
 4. Exécuter le pipeline ETL afin de créer et alimenter l’indice reviews :
 
    ```bash
-   python -m src.etl.main --pages 10
+   python3 -m etl.main --pages 10
    ```
 
 5. Depuis Elastic/Kibana, aller dans Analytics :
@@ -243,11 +234,15 @@ Depuis Kibana – Dev Tools :
 
 ### 7.1 Lancer les tests
 
-Les tests du projet sont réalisés avec pytest. Pour exécuter tous les tests,
-il suffit de se rendre à la racine du projet et de lancer la commande suivante :
+Les tests du projet sont réalisés avec pytest.<br>
+Pour exécuter tous les tests, il suffit de se rendre à la racine du projet et<br>
+de lancer la commande suivante :
 
    ```bash
-   python -m pytest tests/
+   source venv/bin/activate
+   export PYTHONPATH=$(pwd)/src
+   echo $PYTHONPATH
+   pytest src/tests
    ```
 
 ---

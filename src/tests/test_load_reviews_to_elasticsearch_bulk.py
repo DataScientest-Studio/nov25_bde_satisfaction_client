@@ -8,19 +8,19 @@ Elasticsearch via le bulk API.
 
 import pytest
 from unittest.mock import patch
-from src.etl.load.elasticsearch_bulk_loader import load_reviews_to_elasticsearch_bulk
+from etl.load.elasticsearch_bulk_loader import load_reviews_to_elasticsearch_bulk
 
 
 @pytest.fixture
 def mock_es():
     # Crée un mock de la connexion Elasticsearch
-    with patch("src.etl.load.elasticsearch_bulk_loader.Elasticsearch") as MockEs:
+    with patch("etl.load.elasticsearch_bulk_loader.Elasticsearch") as MockEs:
         mock_es_instance = MockEs.return_value
         mock_es_instance.ping.return_value = True  # Simule une connexion réussie
         yield mock_es_instance
 
 
-@patch("src.etl.load.elasticsearch_bulk_loader.helpers.bulk")
+@patch("etl.load.elasticsearch_bulk_loader.helpers.bulk")
 def test_load_reviews_to_elasticsearch_bulk(mock_bulk, mock_es):
     # Exemple de document à tester
     documents = [

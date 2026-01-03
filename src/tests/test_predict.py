@@ -9,8 +9,8 @@ de texte et du modèle de prédiction.
 
 import pytest
 from unittest import mock
-from src.machine_learning.predict import predict_sentiment, convert_stars_to_sentiment
-from src.etl.utils.data_utils import DataUtils
+from machine_learning.predict import predict_sentiment, convert_stars_to_sentiment
+from etl.utils.data_utils import DataUtils
 
 
 # Test pour la fonction convert_stars_to_sentiment
@@ -30,7 +30,7 @@ def test_convert_stars_to_sentiment():
 def test_predict_sentiment():
     # Mock du clean_text directement dans le test
     with mock.patch.object(DataUtils, 'clean_text', return_value="This is a clean review.") as mock_clean_text, \
-         mock.patch('src.machine_learning.predict._model', return_value=[{'label': '5 stars'}]):
+         mock.patch('machine_learning.predict._model', return_value=[{'label': '5 stars'}]):
 
         result = predict_sentiment("This is a great product!")
     

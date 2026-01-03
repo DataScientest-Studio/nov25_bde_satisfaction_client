@@ -14,8 +14,8 @@ import asyncio
 from typing import List, Dict
 from loguru import logger
 from parsel import Selector
-from src.etl.utils.http_client import HttpClient
-from src.etl.config.config import ENTERPRISES
+from etl.utils.http_client import HttpClient
+from etl.config.config import ENTERPRISES
 
 client = HttpClient.get_client()
 

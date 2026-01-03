@@ -12,6 +12,8 @@ RUN streamlit --version
 
 COPY src ./src
 
+ENV PYTHONPATH=/app/src:$PYTHONPATH
+
 EXPOSE 8501
 
 CMD ["streamlit", "run", "src/frontend/app.py"]

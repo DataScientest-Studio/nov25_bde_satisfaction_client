@@ -8,7 +8,7 @@ avec Elasticsearch, en s'assurant que les valeurs par défaut sont appliquées e
 les pourcentages de chaque note sont calculés correctement.
 """
 
-from src.etl.transform.transform_reviews import transform_reviews_for_elasticsearch
+from etl.transform.transform_reviews import transform_reviews_for_elasticsearch
 
 
 # Exemple de données brutes (avis Trustpilot)

@@ -15,7 +15,7 @@ ou mise à jour de documents.
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError, RequestError
 from loguru import logger
-from src.etl.load.mapping_reviews import MAPPING_REVIEWS
+from etl.load.mapping_reviews import MAPPING_REVIEWS
 
 
 def create_index_if_not_exists(es: Elasticsearch, index: str = "reviews") -> None:
