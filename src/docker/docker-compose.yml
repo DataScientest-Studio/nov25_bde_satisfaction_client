@@ -1,4 +1,4 @@
-# File: src\docker\docker-compose.yml
+# File: src/docker/docker-compose.yml
 
 services:
   elasticsearch:
@@ -50,6 +50,36 @@ services:
     volumes:
       - ../../src:/app/src
       - ../../src/frontend/assets:/app/assets
+
+  airflow:
+    image: apache/airflow:2.8.1
+    container_name: airflow-satisfaction
+    depends_on:
+      - elasticsearch
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__HOST: 0.0.0.0
+      _PIP_ADDITIONAL_REQUIREMENTS: "loguru parsel elasticsearch requests httpx[http2]"
+    volumes:
+      - ../../src/airflow/dags:/opt/airflow/dags
+      - ../../src/etl:/opt/airflow/etl
+      - ../../src/etl/data:/opt/airflow/data
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "
+      airflow db migrate &&
+      airflow users create
+        --username admin
+        --firstname admin
+        --lastname admin
+        --role Admin
+        --email admin@example.com
+        --password admin || true &&
+      airflow scheduler &
+      airflow webserver
+      "
 
 volumes:
   es-data:

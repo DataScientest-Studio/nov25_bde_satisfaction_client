@@ -83,7 +83,8 @@ def run_reviews_etl(
             if not extract_raw:
                 logger.warning(
                     "⚠️ Aucune donnée brute trouvée, tentative de charger dernier JSON...")
-                extract_raw = FileUtils.load_last_jsonl("data")
+                extract_raw = FileUtils.load_last_jsonl(
+                    "/opt/airflow/etl/data")
                 if not extract_raw:
                     raise ValueError("Aucune donnée à transformer")
 
@@ -100,7 +101,8 @@ def run_reviews_etl(
             if not transform_docs:
                 logger.warning(
                     "Aucun document transformé trouvé, tentative de charger dernier JSON...")
-                transform_docs = FileUtils.load_last_jsonl("data")
+                transform_docs = FileUtils.load_last_jsonl(
+                    "/opt/airflow/etl/data")
                 if not transform_docs:
                     raise ValueError("Aucune donnée à sauvegarder")
 
@@ -116,7 +118,8 @@ def run_reviews_etl(
             if not transform_docs:
                 logger.warning(
                     "Aucun document trouvé, tentative de charger dernier JSON...")
-                transform_docs = FileUtils.load_last_jsonl("data")
+                transform_docs = FileUtils.load_last_jsonl(
+                    "/opt/airflow/etl/data")
                 if not transform_docs:
                     raise ValueError(
                         "Aucun document à charger dans Elasticsearch")

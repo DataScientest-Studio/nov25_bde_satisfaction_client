@@ -25,7 +25,7 @@ from load.create_index_elasticsearch import create_index_if_not_exists
 
 def load_reviews_to_elasticsearch_bulk(
     documents: List[Dict[str, Any]],
-    es_host: Optional[str] = "http://localhost:9200/",
+    es_host: Optional[str] = "http://elasticsearch:9200",
     index: str = "reviews",
     use_id: bool = True
 ) -> None:
@@ -62,14 +62,15 @@ def load_reviews_to_elasticsearch_bulk(
     create_index_if_not_exists(es=es, index=index)
 
     if not documents:
-        logger.warning("Aucun document à insérer ou mettre à jour dans Elasticsearch")
+        logger.warning(
+            "Aucun document à insérer ou mettre à jour dans Elasticsearch")
         return
 
     actions = []
 
     # Timestamp au format ISO 8601 UTC pour created_at / updated_at
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    
+
     for document in documents:
         # Ignorer les documents sans identifiant métier si use_id=True
         if use_id and not document.get("id_review"):
@@ -85,7 +86,7 @@ def load_reviews_to_elasticsearch_bulk(
 
         # Construire l'action Bulk pour Elasticsearch
         action = {
-            "_op_type": "update", # type d'opération : upsert
+            "_op_type": "update",  # type d'opération : upsert
             "_index": index,
             "_id": doc.get("id_review"),
             "doc": doc,           # données à mettre à jour
@@ -97,7 +98,8 @@ def load_reviews_to_elasticsearch_bulk(
     # Exécution du bulk upsert avec gestion des erreurs
     try:
         success, errors = helpers.bulk(es, actions, raise_on_error=False)
-        logger.success(f"{success} documents insérés ou mis à jour dans Elasticsearch")
+        logger.success(
+            f"{success} documents insérés ou mis à jour dans Elasticsearch")
 
         if errors:
             logger.warning(

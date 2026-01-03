@@ -18,3 +18,4 @@ typing-extensions
 urllib3
 uvicorn
 win32_setctime
+apache-airflow

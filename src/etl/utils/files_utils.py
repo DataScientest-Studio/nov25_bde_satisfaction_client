@@ -147,8 +147,8 @@ class FileUtils:
             Si une erreur se produit lors de la création ou de l'écriture du fichier JSON.
         """
         try:
-            Path("data").mkdir(exist_ok=True)
-            filepath = Path("data") / f"{filename}_{FileUtils.get_timestamp()}.json"
+            Path("/opt/airflow/etl/data").mkdir(parents=True,exist_ok=True)
+            filepath = Path("/opt/airflow/etl/data") / f"{filename}_{FileUtils.get_timestamp()}.json"
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
             logger.info(f"Fichier JSON sauvegardé : {filepath}")
@@ -184,8 +184,8 @@ class FileUtils:
             Si une erreur se produit lors de la création ou de l'écriture du fichier JSONL.
         """
         try:
-            Path("data").mkdir(exist_ok=True)
-            filepath = Path("data") / f"{filename}_{FileUtils.get_timestamp()}.jsonl"
+            Path("/opt/airflow/etl/data").mkdir(parents=True,exist_ok=True)
+            filepath = Path("/opt/airflow/etl/data") / f"{filename}_{FileUtils.get_timestamp()}.jsonl"
             with open(filepath, "w", encoding="utf-8") as f:
                 for doc in docs:
                     f.write(json.dumps(doc, ensure_ascii=False) + "\n")
