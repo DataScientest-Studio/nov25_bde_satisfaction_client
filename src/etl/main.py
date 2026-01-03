@@ -22,7 +22,7 @@ python main.py --pages <nombre_de_pages>
 
 import argparse
 from loguru import logger
-from pipeline.reviews_etl import run_reviews_etl
+from etl.pipeline.reviews_etl import run_reviews_etl
 
 # Nombre maximum de pages autorisé
 MAX_PAGES = 10

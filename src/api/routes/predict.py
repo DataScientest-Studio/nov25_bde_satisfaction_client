@@ -9,8 +9,8 @@ d'un modèle de Machine Learning.
 """
 
 from fastapi import APIRouter, HTTPException
-from src.api.schemas import PredictRequest, PredictResponse
-from src.machine_learning.predict import predict_sentiment
+from api.schemas import PredictRequest, PredictResponse
+from machine_learning.predict import predict_sentiment
 
 
 # Création du routeur pour les endpoints liés à la prédiction

@@ -15,10 +15,10 @@ Le processus peut être configuré pour exécuter uniquement certaines étapes s
 import asyncio
 from typing import List, Dict
 from loguru import logger
-from extract.reviews_scraper import get_reviews_from_trustpilot
-from transform.transform_reviews import transform_reviews_for_elasticsearch
-from load.elasticsearch_bulk_loader import load_reviews_to_elasticsearch_bulk
-from utils.files_utils import FileUtils
+from etl.extract.reviews_scraper import get_reviews_from_trustpilot
+from etl.transform.transform_reviews import transform_reviews_for_elasticsearch
+from etl.load.elasticsearch_bulk_loader import load_reviews_to_elasticsearch_bulk
+from etl.utils.files_utils import FileUtils
 
 
 def run_reviews_etl(

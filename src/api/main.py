@@ -8,7 +8,7 @@ Ce module initialise l'application FastAPI, configure les métadonnées
 """
 
 from fastapi import FastAPI
-from src.api.routes import predict
+from api.routes import predict
 
 # Création de l’application FastAPI
 app = FastAPI(

@@ -11,9 +11,6 @@ Le projet peut être exécuté de deux manières :
 | Local (sans Docker) | Débogage rapide, aucun service externe requis             |
 | Docker Compose      | Isolation des dépendances, idéal pour CI/CD et production |
 
-⚠️ **Important**
-Si vous exécutez le pipeline **localement**, vous devez **commenter la partie “Chargement dans Elasticsearch”** dans `etl/etl_reviews.py`, car Elasticsearch n’est pas lancé par défaut.
-
 ---
 
 ## Table des matières
@@ -24,7 +21,8 @@ Si vous exécutez le pipeline **localement**, vous devez **commenter la partie �
 4. [Vérification des données](#4-vérification-des-données)
 5. [Kibana – Data View et Dashboard](#5-kibana--création-dune-vue-et-dun-tableau-de-bord)
 6. [Accès à l’application Streamlit (Frontend)](#6-accès-à-lapplication-streamlit-frontend)
-7. [Dépannage & problèmes fréquents](#7-dépannage--problèmes-fréquents)
+7. [Tests Unitaires](#7-tests-unitaires)
+8. [Dépannage & problèmes fréquents](#8-dépannage--problèmes-fréquents)
 
 ---
 
@@ -37,10 +35,7 @@ Si vous exécutez le pipeline **localement**, vous devez **commenter la partie �
 | Docker Compose | 1.29+            | ✅          |
 | Elasticsearch  | 8.12+            | optionnel   |
 | Kibana         | 8.12+            | optionnel   |
-
-📌 **Remarque**
-Pour tester uniquement la logique ETL, **Python et les dépendances du `requirements.txt` suffisent**.
-Les scripts de chargement Elasticsearch sont désactivés par défaut.
+|**WSL UBUNTU**  |                  |             |
 
 ---
 
@@ -50,13 +45,10 @@ Les scripts de chargement Elasticsearch sont désactivés par défaut.
 
    ```bash
    # Depuis la racine du projet
-   python -m venv venv
+   python3 -m venv venv
 
    # Pour macOS / Linux
    source venv/bin/activate
-
-   # Pour Windows (PowerShell)
-   .\venv\Scripts\activate
 
    # Installation des dépendances
    pip install --upgrade pip
@@ -74,56 +66,52 @@ Les scripts de chargement Elasticsearch sont désactivés par défaut.
 Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker.
 
 # Arrêt et suppression des conteneurs
-Depuis `src\docker\`
 
    ```bash
+   cd src/docker
    docker ps -a -q | xargs -r docker stop
-
    docker ps -a -q | xargs -r docker rm
    ```
 
 # Suppression des images
-Depuis `src\docker\`
 
    ```bash
+   cd src/docker
    docker images -q | xargs -r docker rmi -f
    ```
 
 # Suppression des volumes
-Depuis `src\docker\`
 
    ```bash
+   cd src/docker
    docker volume ls -q | xargs -r docker volume rm
    ```
 
 # Nettoyage du dossier data
-Depuis `src\docker\`
 
    ```bash
+   cd src/docker
    docker compose down -v
-
    rm -rf ./data/*
-
    mkdir -p ./data
-
    chmod -R 777 ./data
    ```
 
 ### 3.2 Construction et lancement du stack
 
 # Docker Compose
-Depuis `src\docker\`
 
    ```bash
+   cd src/docker
    docker compose build
    docker compose up -d
    ```
 
-# Pipeline ETL
-Depuis `src\etl\`
+# Pipeline ETL (depuis la racine du projet)
 
    ```bash
-   python main.py --pages 10
+   cd src/etl
+   python3 -m main --pages 10
    ```
 
 ---
@@ -145,18 +133,18 @@ Depuis Kibana – Dev Tools :
    # Récupére tous les documents
    GET /reviews/_search
    {
-   "query": {
-      "match_all": {}
-   }
+      "query": {
+         "match_all": {}
+      }
    }
 
    # Récupére les 3 dernières reviews les plus récents
    GET reviews/_search
    {
-   "size": 3,
-   "sort": [
-      { "id_review": { "order": "desc" } }
-   ]
+      "size": 3,
+      "sort": [
+         { "id_review": { "order": "desc" } }
+      ]
    }
    ```
 
@@ -201,13 +189,19 @@ Depuis Kibana – Dev Tools :
 
 ⚠️ **Respecter impérativement l’ordre suivant :**
 
-1. Lancer l’infrastructure Docker (Elasticsearch + Kibana) depuis le dossier `src\docker` :
+1. Lancer l’infrastructure Docker (Elasticsearch + Kibana) :
+
    ```bash
+   cd src/docker
    docker compose up -d
    ```
+
 2. Accéder à Elastic/Kibana :
+
+   ```bash
    Local : http://localhost:5601/app/home#/
    VM : http://<IP_PUBLIQUE_VM>:5601/app/home#/
+   ```
 
 3. Importer les objets sauvegardés (depuis le menu hamburger) :
 
@@ -217,11 +211,11 @@ Depuis Kibana – Dev Tools :
    - Sélectionner le fichier .ndjson
    - Laisser les options par défaut
 
-4. Exécuter le pipeline ETL afin de créer et alimenter l’indice reviews :
+4. Exécuter le pipeline ETL depuis la racine du projet afin de créer et alimenter l’indice reviews :
 
    ```bash
-    cd src\etl
-    python main.py --pages 10
+   cd src/etl
+   python3 -m main --pages 10
    ```
 
 5. Depuis Elastic/Kibana, aller dans Analytics :
@@ -238,7 +232,24 @@ Depuis Kibana – Dev Tools :
 
 ---
 
-## 7. Dépannage & problèmes fréquents
+## 7. Tests Unitaires
+
+### 7.1 Lancer les tests
+
+Les tests du projet sont réalisés avec pytest.<br>
+Pour exécuter tous les tests, il suffit de se rendre à la racine du projet et<br>
+de lancer la commande suivante :
+
+   ```bash
+   source venv/bin/activate
+   export PYTHONPATH=$(pwd)/src
+   echo $PYTHONPATH
+   pytest src/tests
+   ```
+
+---
+
+## 8. Dépannage & problèmes fréquents
 
 | Problème                           | Cause probable                                     | Solution                                                                                                                                                                                                                               |
 | ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
