@@ -43,10 +43,10 @@ jobs:
           pytest --maxfail=1 --disable-warnings -q
         shell: bash
 
-      # - name: Build FastAPI Docker image
-      #   run: |
-      #     docker build -f src/docker/Dockerfile_api -t fastapi-satisfaction:latest .
+      - name: Build FastAPI Docker image
+        run: |
+          docker build -f src/docker/Dockerfile_api -t fastapi-satisfaction:latest .
 
-      # - name: Build Streamlit Docker image
-      #   run: |
-      #     docker build -f src/docker/Dockerfile_frontend -t streamlit-satisfaction:latest .
+      - name: Build Streamlit Docker image
+        run: |
+          docker build -f src/docker/Dockerfile_frontend -t streamlit-satisfaction:latest .

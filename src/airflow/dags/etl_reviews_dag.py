@@ -24,7 +24,7 @@ Cela permet de contrôler quand le DAG commence à s'exécuter, en évitant les 
 from datetime import datetime
 from airflow.operators.bash import BashOperator
 from airflow import DAG
-# "*/ * * * *" pour tester toutes les deux minutes
+# "*/2* * * *" pour tester toutes les deux minutes
 
 # Définition du DAG Airflow
 with DAG(
