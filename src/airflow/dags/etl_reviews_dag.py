@@ -36,5 +36,5 @@ with DAG(
     # Définition de la tâche Bash pour exécuter le script ETL
     run_etl = BashOperator(
         task_id="run_etl_reviews",
-        bash_command="python /opt/airflow/etl/main.py --pages 10",
+        bash_command="PYTHONPATH=/opt/airflow python /opt/airflow/etl/main.py --pages 10",
     )
