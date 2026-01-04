@@ -64,7 +64,7 @@ services:
     volumes:
       - ../../src/airflow/dags:/opt/airflow/dags
       - ../../src/etl:/opt/airflow/etl
-      - ../../src/etl/data:/opt/airflow/data
+      - ../../src/etl/data:/opt/airflow/etl/data
     ports:
       - "8080:8080"
     command: >
