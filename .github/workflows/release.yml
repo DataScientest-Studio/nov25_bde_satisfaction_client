@@ -1,3 +1,20 @@
+name: Release
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker image (FastAPI)
+        run: |
+          docker build -f src/docker/Dockerfile_api -t fastapi-satisfaction:latest .
+
 # name: Release Application
 
 # on:
