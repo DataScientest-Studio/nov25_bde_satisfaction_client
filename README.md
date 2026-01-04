@@ -2,27 +2,38 @@
 
 ## Pipeline ETL Trustpilot → Elasticsearch
 
-Ce dépôt contient un pipeline **Extract – Transform – Load (ETL)** permettant de récupérer des avis publiés sur **Trustpilot** et de les indexer dans **Elasticsearch** sous le nom d’indice **`reviews`**.
+Ce dépôt contient un pipeline **Extract – Transform – Load (ETL)** permettant de collecter des avis publiés sur **Trustpilot** et de les indexer dans **Elasticsearch** sous le nom d’indice **`reviews`**. Il inclut :
+- Extraction : récupération des avis pour plusieurs entreprises, gestion des pages et filtrage automatique.
+- Transformation : nettoyage des textes, parsing des dates et normalisation des données.
+- Chargement : insertion dans Elasticsearch et mise à jour incrémentale.
 
-Le projet peut être exécuté de deux manières :
+## Stack Docker complet
 
-| Mode                | Avantages                                                 |
-| ------------------- | --------------------------------------------------------- |
-| Local (sans Docker) | Débogage rapide, aucun service externe requis             |
-| Docker Compose      | Isolation des dépendances, idéal pour CI/CD et production |
+Le pipeline s’exécute dans un environnement **Docker Compose** pour isoler toutes les dépendances et faciliter le déploiement :
+
+| Service        | Description                                                        |
+| -------------- | ------------------------------------------------------------------ |
+| **Airflow**    | Orchestration des DAGs ETL, planification et exécution du pipeline. |
+| **FastAPI**    | API pour l’accès aux données et aux résultats d’analyse.           |
+| **Streamlit**  | Dashboard pour visualiser les avis et l’analyse de sentiment.     |
+| **Elasticsearch** | Indexation des avis pour recherche et agrégation.                |
+| **Kibana**     | Interface de visualisation et exploration des données Elasticsearch. |
+| **Grafana**    | Monitoring et dashboards métriques.                                 |
+| **Prometheus** | Collecte des métriques des services pour monitoring.               |
+| **Node Exporter** | Export des métriques système pour Prometheus.                     |
 
 ---
 
 ## Table des matières
 
 1. [Prérequis](#1-prérequis)
-2. [Exécution locale](#2-configuration-et-exécution-locale)
-3. [Exécution avec Docker Compose](#3-exécution-avec-docker-compose)
-4. [Vérification des données](#4-vérification-des-données)
-5. [Kibana – Data View et Dashboard](#5-kibana--création-dune-vue-et-dun-tableau-de-bord)
-6. [Accès à l’application Streamlit (Frontend)](#6-accès-à-lapplication-streamlit-frontend)
+2. [Configuration et exécution locale](#2-configuration-et-exécution-locale)
+3. [Tests Unitaires](#3-tests-unitaires)
+4. [Exécution avec Docker Compose](#4-exécution-avec-docker-compose)
+5. [Création d’une vue et d’un tableau de bord dans ES/Kibana](#5-création-dune-vue-et-dun-tableau-de-bord-dans-es-kibana)
+6. [Accès à Streamlit](#6-accès-à-streamlit)
 7. [Accès à Apache Airflow](#7-accès-à-apache-airflow)
-8. [Tests Unitaires](#8-tests-unitaires)
+8. [Accès à Prometheus/Grafana](#8-accès-à-prometheus-grafana)
 9. [Dépannage & problèmes fréquents](#9-dépannage--problèmes-fréquents)
 
 ---
@@ -42,31 +53,41 @@ Le projet peut être exécuté de deux manières :
 
 ## 2. Configuration et exécution locale
 
-### 2.1 Création de l’environnement virtuel
+### 2.1. Création de l’environnement virtuel
 
    ```bash
    # Depuis la racine du projet
    python3 -m venv venv
-
-   # Pour macOS / Linux
    source venv/bin/activate
-
-   # Installation des dépendances
    pip install --upgrade pip
-
    pip install -r requirements.txt
    ```
 
 ---
 
-## 3. Exécution avec Docker Compose
+## 3. Tests Unitaires
 
-### 3.1 Nettoyage complet (optionnel)
+Les tests du projet sont réalisés avec pytest.</br>
+Pour exécuter tous les tests, il suffit de se rendre à la racine du projet et</br>
+de lancer la commande suivante :
 
-⚠️ Attention :
+   ```bash
+   source venv/bin/activate
+   export PYTHONPATH=$(pwd)/src
+   echo $PYTHONPATH
+   pytest src/tests
+   ```
+
+---
+
+## 4. Exécution avec Docker Compose
+
+### 4.1. Nettoyage complet (optionnel)
+
+⚠️ Attention :</br>
 Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker.
 
-# Arrêt et suppression des conteneurs
+1. Arrêt et suppression des conteneurs
 
    ```bash
    cd src/docker
@@ -74,21 +95,21 @@ Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker
    docker ps -a -q | xargs -r docker rm
    ```
 
-# Suppression des images
+2. Suppression des images
 
    ```bash
    cd src/docker
    docker images -q | xargs -r docker rmi -f
    ```
 
-# Suppression des volumes
+3. Suppression des volumes
 
    ```bash
    cd src/docker
    docker volume ls -q | xargs -r docker volume rm
    ```
 
-# Nettoyage du dossier data
+4. Nettoyage du dossier data
 
    ```bash
    cd src/docker
@@ -98,39 +119,40 @@ Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker
    chmod -R 777 ./data
    ```
 
-### 3.2 Construction et lancement du stack
-
-# Docker Compose
+### 4.2. Construction
 
    ```bash
    cd src/docker
-   docker compose build
-   docker compose up -d
+   docker compose build --no-cache
+   chmod +x start_stack.sh
+   ./start_stack.sh
    ```
 
-# Pipeline ETL (depuis la racine du projet)
+### 4.3. Lancement du Pipeline ETL
 
-   ```bash
-   cd src/etl
-   python3 -m main --pages 10
-   ```
+Effectuer cette étape manuellement depuis le DAG Airflow
 
 ---
 
-## 4. Vérification des données
+## 5. Création d’une vue et d’un tableau de bord dans ES/Kibana
+
+### 5.1. Accès à Kibana
+
+   ```bash
+   http://localhost:5601
+   ```
+
+### 5.2. Vérification des données
 
 Depuis Kibana – Dev Tools :
 
    ```bash
    # Liste tous les indices
    GET /_cat/indices?v
-
    # Voir le mapping d'un index
    GET /reviews/_mapping
-
    # Compter le nombre de documents
    GET /reviews/_count
-
    # Récupére tous les documents
    GET /reviews/_search
    {
@@ -138,7 +160,6 @@ Depuis Kibana – Dev Tools :
          "match_all": {}
       }
    }
-
    # Récupére les 3 dernières reviews les plus récents
    GET reviews/_search
    {
@@ -149,17 +170,7 @@ Depuis Kibana – Dev Tools :
    }
    ```
 
----
-
-## 5. Kibana – Création d’une vue et d’un tableau de bord
-
-### 5.1 Accès à Kibana
-
-   ```bash
-   http://localhost:5601
-   ```
-
-### 5.2 Création d’une Data View
+### 5.3. Création d’une Data View
 
    ```bash
    Nom : NOV25_BDE_SATISFACTION_CLIENT
@@ -167,7 +178,7 @@ Depuis Kibana – Dev Tools :
    Champ temporel : Aucun
    ```
 
-### 5.3 Visualisation
+### 5.4. Visualisation
 
 1. Accéder à Elastic/Kibana depuis le navigateur : http://localhost:5601/app/home#/
 
@@ -185,24 +196,9 @@ Depuis Kibana – Dev Tools :
 
 6. Enregistrer chaque visualisation pour pouvoir les réutiliser dans un tableau de bord.
 
-### 5.4 Initialisation lors du premier démarrage (Docker)
+### 5.5. Initialisation lors du premier démarrage (Docker)
 
-⚠️ **Respecter impérativement l’ordre suivant :**
-
-1. Lancer l’infrastructure Docker (Elasticsearch + Kibana) :
-
-   ```bash
-   cd src/docker
-   docker compose up -d
-   ```
-
-2. Accéder à Elastic/Kibana :
-
-   ```bash
-   http://localhost:5601/app/home#/
-   ```
-
-3. Importer les objets sauvegardés (depuis le menu hamburger) :
+1. Importer les objets sauvegardés (depuis le menu hamburger) :
 
    - Stack Management
    - Saved Objects
@@ -210,19 +206,14 @@ Depuis Kibana – Dev Tools :
    - Sélectionner le fichier .ndjson
    - Laisser les options par défaut
 
-4. Exécuter le pipeline ETL depuis la racine du projet afin de créer et alimenter l’indice reviews :
+2. Exécuter le pipeline ETL manuellement depuis le DAG Airflow
 
-   ```bash
-   cd src/etl
-   python3 -m main --pages 10
-   ```
-
-5. Depuis Elastic/Kibana, aller dans Analytics :
+3. Depuis Elastic/Kibana, aller dans Analytics :
    - Dashboards et appliquer un filtre sur les 7 derniers jours.
 
 ---
 
-## 6. Accès à l’application Streamlit (Frontend)
+## 6. Accès à Streamlit
 
    ```bash
    http://localhost:8501
@@ -233,37 +224,30 @@ Depuis Kibana – Dev Tools :
 ## 7. Accès à Apache Airflow
 
    ```bash
-   http://localhost:8080/login/
+   http://localhost:8081/login/
    ```
 
-- Créez un utilisateur `admin` avec le rôle `Admin` dans Airflow en exécutant la commande suivante dans le conteneur Docker :
-
-```bash
-docker exec -it airflow-satisfaction airflow users create \
---username admin \
---firstname admin \
---lastname admin \
---role Admin \
---email admin@example.com \
---password admin
-```
+   - Identifiant  : admin</br>
+   - Mot de passe : admin
 
 ---
 
-## 8. Tests Unitaires
+## 8. Accès à Prometheus/Grafana
 
-### 8.1 Lancer les tests
-
-Les tests du projet sont réalisés avec pytest.<br>
-Pour exécuter tous les tests, il suffit de se rendre à la racine du projet et<br>
-de lancer la commande suivante :
+- Prometheus :
 
    ```bash
-   source venv/bin/activate
-   export PYTHONPATH=$(pwd)/src
-   echo $PYTHONPATH
-   pytest src/tests
+   http://localhost:9090/targets
    ```
+
+- Grafana :
+
+   ```bash
+   http://localhost:3000
+   ```
+
+   - Identifiant  : admin</br>
+   - Mot de passe : admin
 
 ---
 

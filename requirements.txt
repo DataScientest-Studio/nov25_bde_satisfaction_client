@@ -11,6 +11,7 @@ mock
 pandas
 parsel
 pathlib
+prometheus-fastapi-instrumentator
 protobuf
 python-dateutil
 pytest
@@ -23,4 +24,3 @@ transformers
 typing-extensions
 urllib3
 uvicorn
-win32_setctime

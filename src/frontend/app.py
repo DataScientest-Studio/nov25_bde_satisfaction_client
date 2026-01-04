@@ -33,10 +33,10 @@ def lire_base64(fichier_path: str) -> str:
 LOGOS_BASE64 = {key: lire_base64(path) for key, path in LOGOS_FILES_PATHS.items()}
 
 # URLs des ressources externes (API, Kibana, GitHub, FastAPI)
-AIRFLOW_URL = "http://localhost:8080/login/"
+AIRFLOW_URL = "http://localhost:8081/login"
 FASTAPI_URL = "http://localhost:8000/docs"
 GITHUB_URL = "https://github.com/DataScientest-Studio/nov25_bde_satisfaction_client"
-GRAFANA_URL = "https://learn.datascientest.com/login"
+GRAFANA_URL = "http://localhost:3000"
 KIBANA_URL = (
     "http://localhost:5601/app/dashboards#/view/4e52a31c-5cea-4429-b435-6d36728ad392"
     "?embed=true"

@@ -1,17 +1,57 @@
-# File: src/docker/docker-compose.yml
+# File: src\docker\docker-compose.yml
 
 services:
+  node_exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v2.40.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../../src/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - node_exporter
+      - fastapi
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:8.5.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ../../src/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ../../src/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: es-satisfaction
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"
-      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
     ports:
       - "9200:9200"
     volumes:
       - es-data:/usr/share/elasticsearch/data
+    networks:
+      - monitoring
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.12.0
@@ -19,9 +59,11 @@ services:
     depends_on:
       - elasticsearch
     environment:
-      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     ports:
       - "5601:5601"
+    networks:
+      - monitoring
 
   fastapi:
     build:
@@ -31,12 +73,14 @@ services:
     depends_on:
       - elasticsearch
     environment:
-      ELASTICSEARCH_HOST: "http://elasticsearch:9200"
+      ELASTICSEARCH_HOST: http://elasticsearch:9200
     ports:
       - "8000:8000"
     volumes:
       - ../../src:/app/src
-    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+    networks:
+      - monitoring
 
   streamlit:
     build:
@@ -50,36 +94,81 @@ services:
     volumes:
       - ../../src:/app/src
       - ../../src/frontend/assets:/app/assets
+    networks:
+      - monitoring
 
-  airflow:
-    image: apache/airflow:2.8.1
-    container_name: airflow-satisfaction
+  airflow-init:
+    build:
+      context: ../../
+      dockerfile: src/docker/Dockerfile_airflow
+    container_name: airflow-init
+    user: "${AIRFLOW_UID}:0"
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    volumes:
+      - airflow-data:/opt/airflow
+      - ../../src/airflow/dags:/opt/airflow/dags
+      - ../../src/etl:/opt/airflow/etl
+      - ../../src/etl/data:/opt/airflow/etl/data
+    command: >
+      bash -c "
+      airflow db init &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true
+      "
+    networks:
+      - monitoring
+
+  airflow-webserver:
+    build:
+      context: ../../
+      dockerfile: src/docker/Dockerfile_airflow
+    container_name: airflow-webserver
+    user: "${AIRFLOW_UID}:0"
     depends_on:
-      - elasticsearch
+      - airflow-init
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__WEBSERVER__HOST: 0.0.0.0
-      _PIP_ADDITIONAL_REQUIREMENTS: "loguru parsel elasticsearch requests httpx[http2]"
     volumes:
+      - airflow-data:/opt/airflow
       - ../../src/airflow/dags:/opt/airflow/dags
       - ../../src/etl:/opt/airflow/etl
       - ../../src/etl/data:/opt/airflow/etl/data
     ports:
-      - "8080:8080"
-    command: >
-      bash -c "
-      airflow db migrate &&
-      airflow users create
-        --username admin
-        --firstname admin
-        --lastname admin
-        --role Admin
-        --email admin@example.com
-        --password admin || true &&
-      airflow scheduler &
-      airflow webserver
-      "
+      - "8081:8080"
+    command: webserver
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  airflow-scheduler:
+    build:
+      context: ../../
+      dockerfile: src/docker/Dockerfile_airflow
+    container_name: airflow-scheduler
+    user: "${AIRFLOW_UID}:0"
+    depends_on:
+      - airflow-webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    volumes:
+      - airflow-data:/opt/airflow
+      - ../../src/airflow/dags:/opt/airflow/dags
+      - ../../src/etl:/opt/airflow/etl
+      - ../../src/etl/data:/opt/airflow/etl/data
+    command: scheduler
+    restart: unless-stopped
+    networks:
+      - monitoring
 
 volumes:
   es-data:
+  grafana-data:
+  airflow-data:
+
+networks:
+  monitoring:
+    driver: bridge
