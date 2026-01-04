@@ -24,6 +24,7 @@ import argparse
 from loguru import logger
 from etl.pipeline.reviews_etl import run_reviews_etl
 
+
 # Nombre maximum de pages autorisé
 MAX_PAGES = 10
 

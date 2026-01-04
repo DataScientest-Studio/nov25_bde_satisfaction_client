@@ -21,8 +21,9 @@ Le projet peut être exécuté de deux manières :
 4. [Vérification des données](#4-vérification-des-données)
 5. [Kibana – Data View et Dashboard](#5-kibana--création-dune-vue-et-dun-tableau-de-bord)
 6. [Accès à l’application Streamlit (Frontend)](#6-accès-à-lapplication-streamlit-frontend)
-7. [Tests Unitaires](#7-tests-unitaires)
-8. [Dépannage & problèmes fréquents](#8-dépannage--problèmes-fréquents)
+7. [Accès à Apache Airflow](#7-accès-à-apache-airflow)
+8. [Tests Unitaires](#8-tests-unitaires)
+9. [Dépannage & problèmes fréquents](#9-dépannage--problèmes-fréquents)
 
 ---
 
@@ -35,7 +36,7 @@ Le projet peut être exécuté de deux manières :
 | Docker Compose | 1.29+            | ✅          |
 | Elasticsearch  | 8.12+            | optionnel   |
 | Kibana         | 8.12+            | optionnel   |
-|**WSL UBUNTU**  |                  |             |
+|**WSL Ubuntu**  | N/A              | ✅          |
 
 ---
 
@@ -155,8 +156,7 @@ Depuis Kibana – Dev Tools :
 ### 5.1 Accès à Kibana
 
    ```bash
-   Local : http://localhost:5601
-   VM : http://<IP_PUBLIQUE_VM>:5601
+   http://localhost:5601
    ```
 
 ### 5.2 Création d’une Data View
@@ -199,8 +199,7 @@ Depuis Kibana – Dev Tools :
 2. Accéder à Elastic/Kibana :
 
    ```bash
-   Local : http://localhost:5601/app/home#/
-   VM : http://<IP_PUBLIQUE_VM>:5601/app/home#/
+   http://localhost:5601/app/home#/
    ```
 
 3. Importer les objets sauvegardés (depuis le menu hamburger) :
@@ -226,15 +225,34 @@ Depuis Kibana – Dev Tools :
 ## 6. Accès à l’application Streamlit (Frontend)
 
    ```bash
-   Local : http://localhost:8501
-   VM : http://<IP_PUBLIQUE_VM>:8501
+   http://localhost:8501
    ```
 
 ---
 
-## 7. Tests Unitaires
+## 7. Accès à Apache Airflow
 
-### 7.1 Lancer les tests
+   ```bash
+   http://localhost:8080/login/
+   ```
+
+- Créez un utilisateur `admin` avec le rôle `Admin` dans Airflow en exécutant la commande suivante dans le conteneur Docker :
+
+```bash
+docker exec -it airflow-satisfaction airflow users create \
+--username admin \
+--firstname admin \
+--lastname admin \
+--role Admin \
+--email admin@example.com \
+--password admin
+```
+
+---
+
+## 8. Tests Unitaires
+
+### 8.1 Lancer les tests
 
 Les tests du projet sont réalisés avec pytest.<br>
 Pour exécuter tous les tests, il suffit de se rendre à la racine du projet et<br>
@@ -249,7 +267,7 @@ de lancer la commande suivante :
 
 ---
 
-## 8. Dépannage & problèmes fréquents
+## 9. Dépannage & problèmes fréquents
 
 | Problème                           | Cause probable                                     | Solution                                                                                                                                                                                                                               |
 | ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

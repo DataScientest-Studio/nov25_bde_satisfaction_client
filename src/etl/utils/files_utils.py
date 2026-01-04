@@ -193,3 +193,35 @@ class FileUtils:
         except Exception as e:
             logger.error(f"Erreur lors de la sauvegarde JSONL {filename} : {e}")
             raise
+
+    @staticmethod
+    def delete_all_json_files(folder: str) -> None:
+        """
+        Supprime tous les fichiers .json dans un dossier donné.
+
+        Cette méthode parcourt le dossier spécifié et supprime tous les fichiers qui ont l'extension '.json',
+        garantissant ainsi qu'aucune donnée brute n'est conservée après transformation, tout en préservant les fichiers .jsonl.
+
+        Parameters
+        -----------
+        folder : str
+            Le chemin du dossier contenant les fichiers à supprimer.
+
+        Raises
+        -----
+        Exception
+            Si une erreur se produit lors de la suppression des fichiers.
+        """
+        try:
+            # Liste tous les fichiers .json dans le dossier
+            files = [f for f in os.listdir(folder) if f.endswith('.json')]
+            if not files:
+                logger.warning(f"Aucun fichier .json trouvé dans {folder} à supprimer.")
+                return
+            for file in files:
+                file_path = os.path.join(folder, file)
+                os.remove(file_path)
+                logger.info(f"Fichier supprimé : {file_path}")
+        except Exception as e:
+            logger.error(f"Erreur lors de la suppression des fichiers .json dans {folder} : {e}")
+            raise

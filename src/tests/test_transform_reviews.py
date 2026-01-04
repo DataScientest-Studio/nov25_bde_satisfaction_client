@@ -17,7 +17,7 @@ raw_reviews = [
         "reviews": [
             {
                 "id": "review_1",
-                "consumer": {"id": "user_1", "displayName": "User One"},
+                "consumer": {"id": "user_1"},
                 "text": "Great product!",
                 "rating": 5,
                 "dates": {"publishedDate": "2023-01-01"},
@@ -26,7 +26,7 @@ raw_reviews = [
             },
             {
                 "id": "review_2",
-                "consumer": {"id": "user_2", "displayName": "User Two"},
+                "consumer": {"id": "user_2"},
                 "text": "",
                 "rating": 1,
                 "dates": {"publishedDate": "2023-02-01"},
@@ -62,7 +62,6 @@ def test_transform_reviews_for_elasticsearch():
     first_review = transformed_reviews[0]
     assert first_review["id_review"] == "review_1"
     assert first_review["is_verified"] is True
-    assert first_review["user_name"] == "User One"
     assert first_review["user_review"] == "Great product!"
     assert first_review["user_rating"] == 5.0
     assert first_review["enterprise_name"] == "Example Enterprise"
@@ -72,7 +71,6 @@ def test_transform_reviews_for_elasticsearch():
     second_review = transformed_reviews[1]
     assert second_review["id_review"] == "review_2"
     assert second_review["is_verified"] is False
-    assert second_review["user_name"] == "User Two"
     assert second_review["user_review"] == "indisponible"  # Avis vide
     assert second_review["user_rating"] == 1.0
     assert second_review["enterprise_name"] == "Example Enterprise"

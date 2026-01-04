@@ -8,6 +8,7 @@ from typing import Dict
 from transformers import pipeline, logging
 from etl.utils.data_utils import DataUtils
 
+
 # Désactive les messages info de Transformers
 logging.set_verbosity_error()
 

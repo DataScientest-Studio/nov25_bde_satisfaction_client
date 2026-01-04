@@ -15,33 +15,26 @@ empêche l'indexation de champs non déclarés.
 MAPPING_REVIEWS = {
     "dynamic": "strict",
     "properties": {
+        # Identifiant et statut
         "id_review": {"type": "keyword"},
         "is_verified": {"type": "boolean"},
-
-        # Dates métier
+        # Dates
         "date_review": {"type": "date"},
         "date_response": {"type": "date"},
-
-        # Timestamps techniques
+        # Timestamps
         "created_at": {"type": "date"},
         "updated_at": {"type": "date"},
-
+        # Utilisateur
         "id_user": {"type": "keyword"},
-        "user_name": {
-            "type": "text",
-            "fields": {"raw": {"type": "keyword"}}
-        },
-        
         "user_review": {
             "type": "text",
             "fields": {
                 "raw": {"type": "keyword"}
             }
         },
-
         "user_review_length": {"type": "integer"},
         "user_rating": {"type": "float"},
-
+        # Entreprise
         "enterprise_name": {
             "type": "text",
             "fields": {"raw": {"type": "keyword"}}

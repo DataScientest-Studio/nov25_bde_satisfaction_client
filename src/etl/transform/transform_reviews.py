@@ -9,9 +9,39 @@ les informations sont nettoyées et formatées pour une insertion efficace dans 
 """
 
 import math
+import re
 from typing import Dict, Any, List
 from etl.utils.data_utils import DataUtils
 
+
+def anonymize_enterprise_response(text: str) -> str:
+    """
+    Anonymise un texte en remplaçant les fautes de salutation, prénoms et noms par des valeurs génériques.
+    Vérifier à l'aide de https://regex101.com/
+
+    Parameters
+    ----------
+    text : str
+        Texte à anonymiser.
+
+    Returns
+    ---------
+    str
+        Texte anonymisé.
+    """
+    # 1. Remplacer les fautes courantes par "Bonjour"
+    text = re.sub(r"^(Bonour|Bonnour|Bonjouir|Bonsoir)", "Bonjour", text)
+    # 2. Remplacer les salutations comme "Bonjour Madame", "Bonjour Monsieur", etc.
+    text = re.sub(r"^(Bonjour) (Madame, Monsieur|Madame|Monsieur|Mme|M\.|Mr|Melle|M)? ?([\wÀ-ÿ-]+)(,|$)", "Bonjour,", text)
+    # 3. Remplacer "Bonjour" suivi d'un prénom simple (un mot commençant par une majuscule)
+    text = re.sub(r"^(Bonjour), ?([A-Za-zÀ-ÿ-]+)(,|$)", "Bonjour,", text)
+    # 4. Remplacer "Bonjour" suivi d'un prénom composé
+    text = re.sub(r"^(Bonjour) ([A-Za-zÀ-ÿ-]+(?: [A-Za-zÀ-ÿ-]+)*),", "Bonjour,", text)
+    # 5. Remplacer "Bonjour" suivi d'un prénom composé (deux mots ou plus) pour ne garder que le dernier prénom
+    text = re.sub(r"^(Bonjour), (\s*[A-ZÀ-ÿ][a-zÀ-ÿ]+)(\s+[A-ZÀ-ÿ][a-zÀ-ÿ]+)", lambda m: f"Bonjour, {m.group(3).strip()}", text)
+    # 6. Enlever tout prénom ou nom à la fin de la phrase
+    text = re.sub(r"\s+[A-Z][a-z]+$", "", text)
+    return text
 
 def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
@@ -84,13 +114,14 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
             reply_clean = DataUtils.clean_text(reply.get("message") if reply else None)
             if not reply_clean:
                 reply_clean = "indisponible"
+            else:
+                reply_clean = anonymize_enterprise_response(reply_clean)
 
             all_transformed_reviews.append({
                 "id_review": review.get("id"),
                 "is_verified": bool(verification.get("isVerified", False)),
                 "date_review": DataUtils.format_date(dates.get("publishedDate")),
                 "id_user": DataUtils.clean_text(user.get("id")),
-                "user_name": DataUtils.clean_text(user.get("displayName", "inconnu")),
                 "user_review": text_clean,
                 "user_review_length": review_length,
                 "user_rating": DataUtils.to_float(review.get("rating")),

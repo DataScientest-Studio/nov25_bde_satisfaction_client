@@ -92,6 +92,13 @@ def run_reviews_etl(
             transform_docs = transform_reviews_for_elasticsearch(extract_raw)
             logger.success(
                 f"Transformation terminée : {len(transform_docs)} documents prêts pour Elasticsearch")
+
+            # Suppression de tous les fichiers .json après transformation pour respecter le RGPD
+            try:
+                FileUtils.delete_all_json_files("/opt/airflow/etl/data")
+            except Exception as e:
+                logger.error(f"Erreur lors de la suppression des fichiers .json : {e}")
+
         except Exception as e:
             logger.exception(f"✖ Erreur lors de la transformation : {e}")
 

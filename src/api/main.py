@@ -10,6 +10,7 @@ Ce module initialise l'application FastAPI, configure les métadonnées
 from fastapi import FastAPI
 from api.routes import predict
 
+
 # Création de l’application FastAPI
 app = FastAPI(
     title="API de prédiction de sentiment des avis clients",
