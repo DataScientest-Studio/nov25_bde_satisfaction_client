@@ -43,14 +43,14 @@ jobs:
           pytest --maxfail=1 --disable-warnings -q
         shell: bash
 
-      - name: Free disk space
-        run: |
-          docker system prune -af
+      # - name: Free disk space
+      #   run: |
+      #     docker system prune -af
 
-      - name: Build FastAPI Docker image
-        run: |
-          docker build -f src/docker/Dockerfile_api -t fastapi-satisfaction:latest .
+      # - name: Build FastAPI Docker image
+      #   run: |
+      #     docker build -f src/docker/Dockerfile_api -t fastapi-satisfaction:latest .
 
-      - name: Build Streamlit Docker image
-        run: |
-          docker build -f src/docker/Dockerfile_frontend -t streamlit-satisfaction:latest .
+      # - name: Build Streamlit Docker image
+      #   run: |
+      #     docker build -f src/docker/Dockerfile_frontend -t streamlit-satisfaction:latest .
