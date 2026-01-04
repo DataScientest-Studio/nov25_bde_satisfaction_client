@@ -21,20 +21,21 @@ Cela signifie que le DAG commencera à s'exécuter à partir du 1er janvier 2024
 Cela permet de contrôler quand le DAG commence à s'exécuter, en évitant les exécutions avant cette date.
 
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow.operators.bash import BashOperator
 from airflow import DAG
-# "*/2* * * *" pour tester toutes les deux minutes
 
 # Définition du DAG Airflow
 with DAG(
     dag_id="etl_reviews_batch",
     start_date=datetime(2024, 1, 1),
-    schedule_interval="*/2 * * * *",
+    schedule_interval="0 0 */3 * *",  # tous les 3 jours
     catchup=False,
 ) as dag:
     # Définition de la tâche Bash pour exécuter le script ETL
     run_etl = BashOperator(
         task_id="run_etl_reviews",
         bash_command="PYTHONPATH=/opt/airflow python /opt/airflow/etl/main.py --pages 10",
+        retries=3,
+        retry_delay=timedelta(minutes=10),
     )

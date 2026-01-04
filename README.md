@@ -82,55 +82,15 @@ de lancer la commande suivante :
 
 ## 4. Exécution avec Docker Compose
 
-### 4.1. Nettoyage complet (optionnel)
-
 ⚠️ Attention :</br>
-Les commandes suivantes suppriment tous les conteneurs, images et volumes Docker.
-
-1. Arrêt et suppression des conteneurs
-
-   ```bash
-   cd src/docker
-   docker ps -a -q | xargs -r docker stop
-   docker ps -a -q | xargs -r docker rm
-   ```
-
-2. Suppression des images
+La commande ci-dessous supprime tous les conteneurs, images et volumes Docker liés au stack, et réinitialise toutes les données persistantes.
+Utilisez-la uniquement si vous voulez repartir complètement à zéro ou pour votre première exécution du stack.
 
    ```bash
    cd src/docker
-   docker images -q | xargs -r docker rmi -f
-   ```
-
-3. Suppression des volumes
-
-   ```bash
-   cd src/docker
-   docker volume ls -q | xargs -r docker volume rm
-   ```
-
-4. Nettoyage du dossier data
-
-   ```bash
-   cd src/docker
-   docker compose down -v
-   rm -rf ./data/*
-   mkdir -p ./data
-   chmod -R 777 ./data
-   ```
-
-### 4.2. Construction
-
-   ```bash
-   cd src/docker
-   docker compose build --no-cache
    chmod +x start_stack.sh
    ./start_stack.sh
    ```
-
-### 4.3. Lancement du Pipeline ETL
-
-Effectuer cette étape manuellement depuis le DAG Airflow
 
 ---
 
@@ -196,21 +156,6 @@ Depuis Kibana – Dev Tools :
 
 6. Enregistrer chaque visualisation pour pouvoir les réutiliser dans un tableau de bord.
 
-### 5.5. Initialisation lors du premier démarrage (Docker)
-
-1. Importer les objets sauvegardés (depuis le menu hamburger) :
-
-   - Stack Management
-   - Saved Objects
-   - Import
-   - Sélectionner le fichier .ndjson
-   - Laisser les options par défaut
-
-2. Exécuter le pipeline ETL manuellement depuis le DAG Airflow
-
-3. Depuis Elastic/Kibana, aller dans Analytics :
-   - Dashboards et appliquer un filtre sur les 7 derniers jours.
-
 ---
 
 ## 6. Accès à Streamlit
@@ -261,3 +206,4 @@ Depuis Kibana – Dev Tools :
 | Data View introuvable              | Mauvais pattern                                    | Vérifier que le pattern est `reviews*`                                                                                                                                                                                                 |
 | Problème de permissions            | Volume Docker                                      | `chmod -R 777 ./data`                                                                                                                                                                                                                  |
 | Erreur Docker sous Windows         | Docker Desktop non démarré ou backend WSL2 inactif | Vérifier que **Docker Desktop** est démarré, que le backend **WSL2** est actif, puis relancer Docker Desktop. Message typique : `unable to get image docker.elastic.co/kibana/kibana:8.12.0 The system cannot find the file specified` |
+| `invalid character '/' after object key:value pair` | Fichier `~/.docker/config.json` invalide (commentaire ou syntaxe non JSON) | Éditer `~/.docker/config.json` et supprimer tout commentaire ou caractère invalide. Exemple minimal : <br>```json { "auths": {} }``` <br>Tester ensuite avec `docker pull python:3.10-slim` et `docker pull apache/airflow:2.8.1` |
