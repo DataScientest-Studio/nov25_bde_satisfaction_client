@@ -99,15 +99,32 @@ services:
     networks:
       - monitoring
 
+  postgres:
+    image: postgres:13
+    container_name: airflow-postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - monitoring
+
   airflow-init:
     build:
       context: ../../
       dockerfile: src/docker/Dockerfile_airflow
     container_name: airflow-init
     user: "${AIRFLOW_UID}:0"
+    depends_on:
+      - postgres
     environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     volumes:
       - airflow-data:/opt/airflow
       - ../../src/airflow/dags:/opt/airflow/dags
@@ -130,8 +147,9 @@ services:
     depends_on:
       - airflow-init
     environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__WEBSERVER__HOST: 0.0.0.0
     volumes:
       - airflow-data:/opt/airflow
@@ -154,8 +172,9 @@ services:
     depends_on:
       - airflow-webserver
     environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     volumes:
       - airflow-data:/opt/airflow
       - ../../src/airflow/dags:/opt/airflow/dags
@@ -170,6 +189,7 @@ volumes:
   es-data:
   grafana-data:
   airflow-data:
+  pgdata:
 
 networks:
   monitoring:
