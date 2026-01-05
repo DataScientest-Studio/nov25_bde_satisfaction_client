@@ -10,17 +10,23 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image (FastAPI)
+      - name: Build & push FastAPI image
         run: |
-          docker build -f src/docker/Dockerfile_api -t fastapi-satisfaction:latest .
+          docker build -f src/docker/Dockerfile_api -t ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-satisfaction:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-satisfaction:latest
 
-      - name: Build Streamlit Docker image
+      - name: Build & push Streamlit image
         run: |
-          docker build -f src/docker/Dockerfile_frontend -t streamlit-satisfaction:latest .
+          docker build -f src/docker/Dockerfile_frontend -t ${{ secrets.DOCKERHUB_USERNAME }}/streamlit-satisfaction:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/streamlit-satisfaction:latest
 
 # name: Release Application
 
