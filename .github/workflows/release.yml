@@ -10,66 +10,20 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image (FastAPI)
+      - name: Build & push FastAPI image
         run: |
-          docker build -f src/docker/Dockerfile_api -t fastapi-satisfaction:latest .
+          docker build -f src/docker/Dockerfile_api -t ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-satisfaction:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-satisfaction:latest
 
-      - name: Build Streamlit Docker image
+      - name: Build & push Streamlit image
         run: |
-          docker build -f src/docker/Dockerfile_frontend -t streamlit-satisfaction:latest .
-
-# name: Release Application
-
-# on:
-#   push:
-#     branches: ["master"]
-
-# jobs:
-#   release:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - uses: actions/checkout@v3
-
-#       - name: Set up Python 3.10
-#         uses: actions/setup-python@v3
-#         with:
-#           python-version: "3.10"
-
-#       - name: Install dependencies
-#         run: |
-#           python -m pip install --upgrade pip
-#           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-#       - name: Set up PYTHONPATH
-#         run: echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
-
-#       - name: Lint with flake8
-#         run: |
-#           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-#           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-#       - name: Test with pytest
-#         run: |
-#           pytest --maxfail=1 --disable-warnings -q
-#         shell: bash
-
-#       - name: Login to DockerHub
-#         uses: docker/login-action@v3
-#         with:
-#           username: ${{ secrets.DOCKERHUB_USERNAME }}
-#           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-#       - name: Build & push FastAPI image
-#         run: |
-#           docker build -f src/docker/Dockerfile_api -t ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-satisfaction:latest .
-#           docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-satisfaction:latest
-
-#       - name: Build & push Streamlit image
-#         run: |
-#           docker build -f src/docker/Dockerfile_frontend -t ${{ secrets.DOCKERHUB_USERNAME }}/streamlit-satisfaction:latest .
-#           docker push ${{ secrets.DOCKERHUB_USERNAME }}/streamlit-satisfaction:latest
+          docker build -f src/docker/Dockerfile_frontend -t ${{ secrets.DOCKERHUB_USERNAME }}/streamlit-satisfaction:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/streamlit-satisfaction:latest

@@ -65,3 +65,4 @@ if __name__ == "__main__":
 
     # Lancement du pipeline
     run_pipeline(args.pages)
+
