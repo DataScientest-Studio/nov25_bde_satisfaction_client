@@ -12,7 +12,7 @@ echo "=== STOP et suppression de tous les conteneurs du stack ==="
 $COMPOSE down --volumes --remove-orphans
 
 echo "=== Suppression des images locales du stack ==="
-IMAGES=("fastapi-satisfaction" "streamlit-satisfaction" "airflow-webserver" "airflow-scheduler" "airflow-init")
+IMAGES=("fastapi-satisfaction" "streamlit-satisfaction" "airflow-webserver" "airflow-scheduler" "airflow-init" "grafana")
 for img in "${IMAGES[@]}"; do
     if docker image inspect "$img" >/dev/null 2>&1; then
         docker rmi -f "$img"
@@ -20,7 +20,7 @@ for img in "${IMAGES[@]}"; do
 done
 
 echo "=== Suppression des volumes Docker ==="
-VOLUMES=("es-data" "grafana-data" "airflow-data")
+VOLUMES=("es-data" "grafana-data" "airflow-data" "pgdata")
 for vol in "${VOLUMES[@]}"; do
     if docker volume inspect "$vol" >/dev/null 2>&1; then
         docker volume rm -f "$vol"
