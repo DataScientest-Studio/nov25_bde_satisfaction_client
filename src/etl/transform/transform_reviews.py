@@ -1,9 +1,9 @@
 # File: src\etl\transform\transform_reviews.py
 
 """
-Module pour transformer les avis Trustpilot en documents compatibles Elasticsearch.
+Module pour transformer les avis en documents compatibles Elasticsearch.
 
-Ce module permet de transformer les avis récupérés depuis Trustpilot en documents structurés et prêts à être
+Ce module permet de transformer les avis récupérés depuis en documents structurés et prêts à être
 indexés dans Elasticsearch. Les avis vides sont remplacés par des valeurs par défaut ("indisponible"), et
 les informations sont nettoyées et formatées pour une insertion efficace dans Elasticsearch.
 """
@@ -48,7 +48,7 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
     Transforme tous les avis de toutes les entreprises en documents prêts pour Elasticsearch,
     en nettoyant les avis et en remplaçant les champs vides par des valeurs par défaut.
 
-    Cette fonction prend en entrée une liste de dictionnaires représentant les avis bruts extraits de Trustpilot,
+    Cette fonction prend en entrée une liste de dictionnaires représentant les avis bruts extraits,
     et retourne une nouvelle liste de documents formatés pour Elasticsearch. Les avis vides ou malformés sont
     remplacés par des valeurs par défaut (ex : "indisponible"), et les valeurs numériques sont formatées pour
     correspondre aux attentes d'Elasticsearch (par exemple, les pourcentages sont calculés).
@@ -56,7 +56,7 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
     Parameters
     -----------
     raw_list : List[Dict[str, Any]]
-        Une liste de dictionnaires représentant les avis bruts extraits de Trustpilot. Chaque dictionnaire
+        Une liste de dictionnaires représentant les avis bruts extraits. Chaque dictionnaire
         contient des informations sur les avis ainsi que sur l'entreprise associée.
 
     Returns

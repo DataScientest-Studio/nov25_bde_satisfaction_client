@@ -1,10 +1,10 @@
 # File: src\etl\extract\reviews_scraper.py
 
 """
-Module pour scraper les avis Trustpilot d'une ou plusieurs entreprises.
+Module pour scraper les avis d'une ou plusieurs entreprises.
 
-Ce module permet d'extraire les avis Trustpilot à partir de l'URL d'une entreprise,
-en utilisant l'API de Trustpilot, tout en gérant la pagination et les erreurs éventuelles.
+Ce module permet d'extraire les avis à partir de l'URL d'une entreprise,
+en utilisant l'API, tout en gérant la pagination et les erreurs éventuelles.
 
 Les avis sont récupérés par pages, avec un maximum configurable par entreprise.
 """
@@ -26,20 +26,20 @@ logger.info(f"Entreprises configurées : {[e['enterprise_url'] for e in ENTERPRI
 
 async def get_reviews_url_api(url_base: str) -> str:
     """
-    Génére l'URL de l'API Trustpilot pour récupérer les avis d'une entreprise.
+    Génére l'URL de l'API pour récupérer les avis d'une entreprise.
 
     Cette fonction extrait dynamiquement le 'buildId' de la page HTML de l'entreprise
-    et construit l'URL de l'API Trustpilot pour accéder aux avis.
+    et construit l'URL de l'API pour accéder aux avis.
 
     Parameters
     ----------
     url_base : str
-        L'URL de la page de l'entreprise sur Trustpilot (par exemple : "https://www.trustpilot.com/review/enterprise_url").
+        L'URL de la page de l'entreprise.
         
     Returns
     -------
     str
-        L'URL complète de l'API Trustpilot pour récupérer les avis de l'entreprise.
+        L'URL complète de l'API pour récupérer les avis de l'entreprise.
         
     Raises
     -----
@@ -61,9 +61,9 @@ async def get_reviews_url_api(url_base: str) -> str:
         # Récupération de l'ID de l'entreprise dans l'URL
         business_unit = url_base.split("review/")[-1]
 
-        # Construction de l'URL de l'API interne Trustpilot (Next.js)
+        # Construction de l'URL de l'API interne(Next.js)
         # - build_id      : identifiant dynamique de build extrait de la page HTML
-        # - business_unit : identifiant de l'entreprise sur Trustpilot
+        # - business_unit : identifiant de l'entreprise
         # - sort=recency  : tri des avis par date la plus récente
         # - languages=fr  : récupération des avis en français uniquement
         url_api = (
@@ -78,7 +78,7 @@ async def get_reviews_url_api(url_base: str) -> str:
 
 async def scrape_reviews(url_base: str, max_pages: int = 1) -> List[Dict]:
     """
-    Récupère et agrège les avis depuis l'API Trustpilot avec gestion de la pagination.
+    Récupère et agrège les avis depuis l'API avec gestion de la pagination.
 
     Cette fonction effectue un scraping des avis d'une entreprise en plusieurs pages si nécessaire.
     Les résultats sont retournés sous forme de liste d'objets JSON contenant les avis.
@@ -86,7 +86,7 @@ async def scrape_reviews(url_base: str, max_pages: int = 1) -> List[Dict]:
     Parameters
     ----------
     url_base : str
-        L'URL de la page de l'entreprise sur Trustpilot (par exemple : "https://www.trustpilot.com/review/enterprise_url").
+        L'URL de la page de l'entreprise.
         
     max_pages : int, optionnel
         Le nombre maximal de pages à récupérer. Par défaut, 1.
@@ -183,7 +183,7 @@ async def get_reviews_from_trustpilot(max_pages: int) -> List[Dict]:
     List[Dict]
         Une liste de dictionnaires contenant les résultats du scraping pour chaque entreprise. 
         Chaque dictionnaire contient :
-        - 'enterprise_url': URL de l'entreprise sur Trustpilot.
+        - 'enterprise_url': URL de l'entreprise.
         - 'enterprise': Informations générales sur l'entreprise (note moyenne, nombre d'avis, etc.).
         - 'reviews': Liste des avis récupérés sous forme de dictionnaires.
 

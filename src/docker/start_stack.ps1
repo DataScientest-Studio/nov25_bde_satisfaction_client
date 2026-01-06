@@ -92,6 +92,10 @@ Wait-Service "Elasticsearch" "http://localhost:9200"
 Wait-Service "Kibana" "http://localhost:5601/api/status"
 Wait-Service "Airflow Webserver" "http://localhost:8081/health"
 
+# --- Activation du DAG Airflow ---
+# Déverrouille (unpause) le DAG ETL afin qu'il puisse être déclenché automatiquement ou manuellement
+docker exec airflow-webserver airflow dags unpause etl_reviews_batch
+
 # --- Import Kibana Saved Objects ---
 Write-Output "=== Import Kibana Saved Objects ==="
 $kibanaFile = "C:\path\to\kibana_exports\export.ndjson"

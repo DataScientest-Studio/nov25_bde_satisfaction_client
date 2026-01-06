@@ -4,12 +4,25 @@
 
 ![Schéma d'architecture du projet](images\architecture_projet.png)
 
-## Trustpilot → Pipeline ETL → Elasticsearch
+## Site d'avis de clients → Pipeline ETL → Elasticsearch
 
-Ce dépôt contient un pipeline **Extract – Transform – Load (ETL)** permettant de collecter des avis publiés sur **Trustpilot** et de les indexer dans **Elasticsearch** sous le nom d’indice **`reviews`**. Il inclut :
-- Extraction : récupération des avis pour plusieurs entreprises, gestion des pages et filtrage automatique.
-- Transformation : nettoyage des textes, parsing des dates et normalisation des données.
-- Chargement : insertion dans Elasticsearch et mise à jour incrémentale.
+Ce dépôt contient un pipeline **ETL (Extract – Transform – Load)** conçu pour collecter des avis publiés et les indexer dans **Elasticsearch** sous l’indice **`reviews`**. Il comprend les étapes suivantes :
+
+### Extraction
+- Récupération des avis pour une ou plusieurs entreprises (dans ce projet, une seule entreprise).
+- Gestion automatique de la pagination pour collecter tous les avis disponibles.
+- Filtrage et traitement initial des données afin d’assurer la qualité et la cohérence.
+
+### Transformation
+- Anonymisation des informations personnelles pour respecter le **RGPD**.
+- Nettoyage et normalisation des textes.
+- Parsing des dates et formatage des champs pour correspondre aux standards Elasticsearch.
+- Préparation des données pour un chargement efficace et incrémental.
+
+### Chargement
+- Insertion des données dans Elasticsearch via des opérations **bulk** pour optimiser la performance.
+- Mise à jour incrémentale (**upsert**) pour éviter les doublons et maintenir l’indice à jour.
+- Gestion des erreurs et logs détaillés pour faciliter le suivi et le débogage.
 
 ## Stack Docker complet
 
@@ -86,9 +99,12 @@ de lancer la commande suivante :
 
 ## 4. Exécution avec Docker Compose
 
-⚠️ Attention :</br>
-La commande ci-dessous supprime tous les conteneurs, images et volumes Docker liés au stack, et réinitialise toutes les données persistantes.
+⚠️ **Attention** :</br>
+   - La commande ci-dessous supprime tous les conteneurs, images et volumes Docker liés au stack, et réinitialise toutes les données persistantes.
 Utilisez-la uniquement si vous voulez repartir complètement à zéro ou pour votre première exécution du stack.
+
+   - Si ce script est modifié sous Windows (VS Code),
+exécuter `dos2unix start_stack.sh` avant de lancer le script
 
    ```bash
    cd src/docker

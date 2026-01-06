@@ -11,7 +11,7 @@ les pourcentages de chaque note sont calculés correctement.
 from etl.transform.transform_reviews import transform_reviews_for_elasticsearch
 
 
-# Exemple de données brutes (avis Trustpilot)
+# Exemple de données brutes
 raw_reviews = [
     {
         "reviews": [

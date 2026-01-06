@@ -1,7 +1,7 @@
 # File: src\airflow\dags\etl_reviews_dag.py
 
 """
-Ce module définit un DAG Airflow pour exécuter périodiquement le pipeline ETL des avis Trustpilot.
+Ce module définit un DAG Airflow pour exécuter périodiquement le pipeline ETL des avis.
 Le DAG est configuré pour s'exécuter toutes les 3 jours à minuit et lance une tâche Bash
 qui exécute le script principal du pipeline ETL avec un paramètre spécifiant le nombre de pages à scraper.
 

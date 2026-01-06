@@ -1,9 +1,9 @@
 # File: tests\test_reviews_scraper.py
 
 """
-Test de l'accessibilité de l'URL Trustpilot.
+Test de l'accessibilité de l'URL.
 
-Ce test effectue une requête HTTP GET sur l'URL d'une entreprise sur Trustpilot
+Ce test effectue une requête HTTP GET sur l'URL d'une entreprise
 pour vérifier si la page est accessible (statut HTTP 200).
 """
 

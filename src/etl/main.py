@@ -3,14 +3,14 @@
 """
 Main script
 -----------
-Exécution du pipeline ETL pour récupérer les avis Trustpilot, avec possibilité de définir
+Exécution du pipeline ETL pour récupérer les avis, avec possibilité de définir
 le nombre de pages à scraper.
 
-Ce script permet de lancer un pipeline ETL complet pour récupérer les avis des entreprises
-sur Trustpilot. Le nombre de pages à scraper peut être spécifié via la ligne de commande.
+Ce script permet de lancer un pipeline ETL complet pour récupérer les avis des entreprises.
+Le nombre de pages à scraper peut être spécifié via la ligne de commande.
 
 Le pipeline ETL inclut les étapes suivantes :
-1. Extraction des avis depuis Trustpilot.
+1. Extraction des avis.
 2. Transformation des avis pour les rendre compatibles avec Elasticsearch.
 3. Sauvegarde des données en format JSONL.
 4. Chargement des données dans Elasticsearch.
@@ -31,7 +31,7 @@ MAX_PAGES = 10
 
 def run_pipeline(pages: int) -> None:
     """
-    Lance le pipeline ETL pour récupérer les avis Trustpilot et effectuer les étapes
+    Lance le pipeline ETL pour récupérer les avis et effectuer les étapes
     d'extraction, transformation, sauvegarde et chargement.
 
     Parameters
@@ -52,7 +52,7 @@ def run_pipeline(pages: int) -> None:
 
 if __name__ == "__main__":
     # Parsing des arguments de ligne de commande
-    parser = argparse.ArgumentParser(description="Lancer le pipeline ETL Trustpilot")
+    parser = argparse.ArgumentParser(description="Lancement du pipeline ETL")
     parser.add_argument(
         "--pages",
         type=int,
