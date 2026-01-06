@@ -124,6 +124,7 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     volumes:
       - airflow-data:/opt/airflow
@@ -134,6 +135,7 @@ services:
       bash -c "
       airflow db init &&
       airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true
+      airflow dags unpause etl_reviews_batch
       "
     networks:
       - monitoring
@@ -149,6 +151,7 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__WEBSERVER__HOST: 0.0.0.0
     volumes:
@@ -174,13 +177,18 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     volumes:
       - airflow-data:/opt/airflow
       - ../../src/airflow/dags:/opt/airflow/dags
       - ../../src/etl:/opt/airflow/etl
       - ../../src/etl/data:/opt/airflow/etl/data
-    command: scheduler
+    command: >
+      bash -c "
+      airflow dags unpause etl_reviews_batch &&
+      airflow scheduler
+      "
     restart: unless-stopped
     networks:
       - monitoring

@@ -63,6 +63,8 @@ wait_service "Elasticsearch" "http://localhost:9200"
 wait_service "Kibana" "http://localhost:5601/api/status"
 wait_service "Airflow Webserver" "http://localhost:8081/health"
 
+docker exec airflow-webserver airflow dags unpause etl_reviews_batch
+
 # --- Import Kibana Saved Objects ---
 echo "=== Import Kibana Saved Objects ==="
 docker exec -i kibana-satisfaction \
