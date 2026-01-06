@@ -1,6 +1,10 @@
 # NOV25 – BDE Satisfaction Client
 
-## Pipeline ETL Trustpilot → Elasticsearch
+## Schéma d'architecture du projet
+
+![Schéma d'architecture du projet](images\architecture_projet.png)
+
+## Trustpilot → Pipeline ETL → Elasticsearch
 
 Ce dépôt contient un pipeline **Extract – Transform – Load (ETL)** permettant de collecter des avis publiés sur **Trustpilot** et de les indexer dans **Elasticsearch** sous le nom d’indice **`reviews`**. Il inclut :
 - Extraction : récupération des avis pour plusieurs entreprises, gestion des pages et filtrage automatique.
@@ -88,8 +92,14 @@ Utilisez-la uniquement si vous voulez repartir complètement à zéro ou pour vo
 
    ```bash
    cd src/docker
+
+   # Sous MacOS / Linux
    chmod +x start_stack.sh
    ./start_stack.sh
+
+   # Sous Windows (PowerShell en mode admin)
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+   .\start_stack.ps1
    ```
 
 ---

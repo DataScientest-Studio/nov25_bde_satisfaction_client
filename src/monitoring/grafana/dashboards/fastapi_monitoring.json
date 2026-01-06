@@ -1,4 +1,6 @@
 {
+  "uid": "fastapi-monitoring",
+  "title": "FastAPI & Monitoring",
   "annotations": {
     "list": [
       {
