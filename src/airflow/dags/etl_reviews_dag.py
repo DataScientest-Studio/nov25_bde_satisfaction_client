@@ -31,6 +31,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule_interval="0 0 */3 * *",  # tous les 3 jours
     catchup=False,
+    is_paused_upon_creation=False,
 ) as dag:
     # Définition de la tâche Bash pour exécuter le script ETL
     run_etl = BashOperator(
