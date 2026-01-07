@@ -11,6 +11,8 @@ from fastapi import FastAPI, Request
 from api.routes import predict
 from prometheus_fastapi_instrumentator import PrometheusFastApiInstrumentator
 from prometheus_client import Counter
+from api.routes.stats import router as stats_router
+
 
 
 # Création de l’application FastAPI
@@ -22,6 +24,8 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
+app.include_router(stats_router)
+
 
 # Compteur
 API_REQUESTS_TOTAL = Counter(
