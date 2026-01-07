@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 # DotEnv configuration
-src/docker/.env
+!src/docker/.env
 
 # Database
 *.db

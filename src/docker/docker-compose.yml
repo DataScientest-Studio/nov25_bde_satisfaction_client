@@ -23,7 +23,9 @@ services:
       - monitoring
 
   grafana:
-    image: grafana/grafana:8.5.0
+   build:
+    context: ../../
+    dockerfile: src/docker/Dockerfile_grafana
     container_name: grafana
     ports:
       - "3000:3000"

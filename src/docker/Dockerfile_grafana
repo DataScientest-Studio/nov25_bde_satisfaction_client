@@ -1,0 +1,11 @@
+# File: src\docker\Dockerfile_grafana
+
+FROM grafana/grafana:8.5.0
+
+COPY src/monitoring/grafana/provisioning/dashboards.yml /etc/grafana/provisioning/dashboards/
+
+COPY src/monitoring/grafana/dashboards/fastapi_monitoring.json /var/lib/grafana/dashboards/
+
+ENV GF_SECURITY_ADMIN_USER=admin
+ENV GF_SECURITY_ADMIN_PASSWORD=admin
+ENV GF_DEFAULT_APP_DASHBOARD_UID=fastapi-monitoring
