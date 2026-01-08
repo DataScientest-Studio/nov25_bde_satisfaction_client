@@ -1,4 +1,4 @@
-# File: tests\test_predict.py
+# File: src\tests\test_predict.py
 
 """
 Ce module contient des tests unitaires pour les fonctions de prédiction de sentiment
@@ -16,11 +16,11 @@ from etl.utils.data_utils import DataUtils
 # Test pour la fonction convert_stars_to_sentiment
 def test_convert_stars_to_sentiment():
     # Test pour chaque label possible
-    assert convert_stars_to_sentiment("1 star") == "NÉGATIF"
-    assert convert_stars_to_sentiment("2 stars") == "NÉGATIF"
-    assert convert_stars_to_sentiment("3 stars") == "NEUTRE"
-    assert convert_stars_to_sentiment("4 stars") == "POSITIF"
-    assert convert_stars_to_sentiment("5 stars") == "POSITIF"
+    assert convert_stars_to_sentiment("1 star") == "Négatif"
+    assert convert_stars_to_sentiment("2 stars") == "Négatif"
+    assert convert_stars_to_sentiment("3 stars") == "Neutre"
+    assert convert_stars_to_sentiment("4 stars") == "Positif"
+    assert convert_stars_to_sentiment("5 stars") == "Positif"
     
     # Test d'un label inattendu
     with pytest.raises(ValueError):
@@ -35,7 +35,7 @@ def test_predict_sentiment():
         result = predict_sentiment("This is a great product!")
     
     # Vérifier que la fonction retourne bien le sentiment attendu
-    assert result["sentiment"] == "POSITIF"
+    assert result["sentiment"] == "Positif"
     
     # Vérifier que le texte nettoyé est bien celui attendu
     assert result["text_clean"] == "This is a clean review."

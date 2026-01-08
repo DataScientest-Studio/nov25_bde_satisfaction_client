@@ -40,7 +40,7 @@ services:
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"
-      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
     ports:
       - "9200:9200"
     volumes:
@@ -75,7 +75,6 @@ services:
       - "8000:8000"
     volumes:
       - ../../src:/app/src
-    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
     networks:
       - monitoring
 

@@ -2,7 +2,6 @@
 
 """
 Module principal de l'application FastAPI.
-
 Initialise l'application FastAPI, configure les métadonnées
 et expose les métriques Prometheus.
 """
@@ -11,8 +10,7 @@ from fastapi import FastAPI, Request
 from api.routes import predict
 from prometheus_fastapi_instrumentator import PrometheusFastApiInstrumentator
 from prometheus_client import Counter
-from api.routes.stats import router as stats_router
-
+from api.routes.es_queries import router as es_router
 
 
 # Création de l’application FastAPI
@@ -24,8 +22,12 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
-app.include_router(stats_router)
 
+# Inclusion des routes API
+app.include_router(predict.router)
+
+# Inclusion des routes ES
+app.include_router(es_router)
 
 # Compteur
 API_REQUESTS_TOTAL = Counter(
@@ -58,7 +60,3 @@ async def metrics_middleware(request: Request, call_next):
     ).inc()
 
     return response
-
-
-# Inclusion des routes API
-app.include_router(predict.router)

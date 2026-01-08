@@ -1,0 +1,6 @@
+elastic-transport==8.17.1
+elasticsearch==8.12.0
+httpx[http2]==0.23.3
+loguru==0.7.3
+parsel==1.9.1
+requests==2.31.0

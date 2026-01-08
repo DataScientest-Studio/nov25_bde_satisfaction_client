@@ -1,4 +1,4 @@
-# test_elasticsearch_bulk_loader.py
+# File: src\tests\test_load_reviews_to_elasticsearch_bulk.py
 
 """
 Tests unitaires pour la fonction 'load_reviews_to_elasticsearch_bulk' dans le module

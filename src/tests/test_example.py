@@ -1,4 +1,4 @@
-# File: test_example.py
+# File: src\tests\test_example.py
 
 """
 Test simple pour vérifier l'addition de deux nombres.

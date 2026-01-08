@@ -16,9 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 USER airflow
 
-RUN pip install --no-cache-dir \
-    loguru \
-    parsel \
-    elasticsearch \
-    requests \
-    "httpx[http2]"
+COPY src/docker/requirements_airflow.txt .
+
+RUN pip install --no-cache-dir -r requirements_airflow.txt

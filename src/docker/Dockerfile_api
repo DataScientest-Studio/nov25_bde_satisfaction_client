@@ -4,13 +4,22 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY src/docker/requirements_api.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Installation de Torch CPU depuis le .whl officiel
+RUN pip install --no-cache-dir -v --index-url https://download.pytorch.org/whl/cpu torch
 
-COPY src ./src
+# Installation des autres dépendances
+RUN pip install --no-cache-dir -v -r requirements_api.txt
+
+COPY src/api ./src/api
+COPY src/machine_learning ./src/machine_learning
+COPY src/etl ./src/etl
 
 ENV PYTHONPATH=/app/src
+
+# Pré-charger le modèle Hugging Face
+RUN python src/machine_learning/preload_model.py
 
 EXPOSE 8000
 

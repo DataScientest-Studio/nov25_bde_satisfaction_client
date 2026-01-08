@@ -28,9 +28,9 @@ def convert_stars_to_sentiment(label: str) -> str:
     (1 à 5 étoiles) en un sentiment textuel simplifié.
 
     Les correspondances sont les suivantes :
-    - 1 ou 2 étoiles => NÉGATIF
-    - 3 étoiles      => NEUTRE
-    - 4 ou 5 étoiles => POSITIF
+    - 1 ou 2 étoiles => Négatif
+    - 3 étoiles      => Neutre
+    - 4 ou 5 étoiles => Positif
 
     Cette fonction permet de normaliser la sortie du modèle
     de sentiment en trois catégories exploitables.
@@ -44,7 +44,7 @@ def convert_stars_to_sentiment(label: str) -> str:
     Returns
     -------
     str
-        Sentiment normalisé : "NÉGATIF", "NEUTRE" ou "POSITIF".
+        Sentiment normalisé : "Négatif", "Neutre" ou "Positif".
 
     Raises
     ------
@@ -55,11 +55,11 @@ def convert_stars_to_sentiment(label: str) -> str:
     label = label.upper()
 
     if label in ["1 STAR", "2 STARS"]:
-        return "NÉGATIF"
+        return "Négatif"
     elif label == "3 STARS":
-        return "NEUTRE"
+        return "Neutre"
     elif label in ["4 STARS", "5 STARS"]:
-        return "POSITIF"
+        return "Positif"
     else:
         raise ValueError(f"Label inattendu : {label}")
 
@@ -75,9 +75,9 @@ def predict_sentiment(text: str) -> Dict[str, str]:
     Le modèle est entrainé à prédire une note de 1 à 5 étoiles à partir d'un texte.
     Ensuite, dans le code y a une étape de normalisation qui convertit ces
     notes en trois catégories de sentiment :
-    - NÉGATIF (1-2 étoiles)
-    - NEUTRE  (3 étoiles)
-    - POSITIF (4-5 étoiles)
+    - Négatif (1-2 étoiles)
+    - Neutre  (3 étoiles)
+    - Positif (4-5 étoiles)
 
     Lors de la première exécution en local sur la machine, les fichiers du modèle
     et du tokenizer sont téléchargés et stockés dans le cache local de Hugging Face

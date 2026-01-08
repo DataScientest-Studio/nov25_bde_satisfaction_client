@@ -1,15 +1,16 @@
-# File: tests\test_transform_reviews.py
+# File: src\tests\test_transform_reviews.py
 
 """
-Test de la transformation des avis pour Elasticsearch.
+Test de la transformation des avis pour Elasticsearch avec prise en compte du sentiment utilisateur.
 
 Ce test vérifie que les avis bruts sont correctement transformés en un format compatible 
-avec Elasticsearch, en s'assurant que les valeurs par défaut sont appliquées et que 
-les pourcentages de chaque note sont calculés correctement.
+avec Elasticsearch, en s'assurant que les valeurs par défaut sont appliquées, que les
+pourcentages de chaque note sont calculés correctement, et que le champ user_sentiment
+est bien généré via le modèle ML (mocké ici pour le test).
 """
 
+from unittest.mock import patch
 from etl.transform.transform_reviews import transform_reviews_for_elasticsearch
-
 
 # Exemple de données brutes
 raw_reviews = [
@@ -51,8 +52,12 @@ raw_reviews = [
     }
 ]
 
-# Test pour la fonction transform_reviews_for_elasticsearch
-def test_transform_reviews_for_elasticsearch():
+# Mock du modèle de sentiment pour rendre le test déterministe
+@patch("etl.transform.transform_reviews.predict_sentiment")
+def test_transform_reviews_for_elasticsearch(mock_predict):
+    # On force le modèle à renvoyer Neutre pour tous les textes
+    mock_predict.side_effect = lambda text: {"text_clean": text, "sentiment": "Neutre"}
+
     transformed_reviews = transform_reviews_for_elasticsearch(raw_reviews)
 
     # Vérifier qu'il y a bien deux avis transformés
@@ -81,8 +86,12 @@ def test_transform_reviews_for_elasticsearch():
     assert second_review["date_response"] is None  # Pas de réponse de l'entreprise, donc None
 
     # Vérifier les pourcentages
-    assert first_review["enterprise_percentage_one_star"] == 10  # 1/10 * 100
-    assert first_review["enterprise_percentage_two_star"] == 20  # 2/10 * 100
-    assert first_review["enterprise_percentage_three_star"] == 30  # 3/10 * 100
-    assert first_review["enterprise_percentage_four_star"] == 20  # 2/10 * 100
-    assert first_review["enterprise_percentage_five_star"] == 20  # 2/10 * 100
+    assert first_review["enterprise_percentage_one_star"] == 10
+    assert first_review["enterprise_percentage_two_star"] == 20
+    assert first_review["enterprise_percentage_three_star"] == 30
+    assert first_review["enterprise_percentage_four_star"] == 20
+    assert first_review["enterprise_percentage_five_star"] == 20
+
+    # Vérifier le champ user_sentiment
+    assert first_review["user_sentiment"] == "Neutre"
+    assert second_review["user_sentiment"] == "Neutre"

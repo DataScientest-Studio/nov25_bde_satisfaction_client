@@ -26,20 +26,13 @@ MAPPING_REVIEWS = {
         "updated_at": {"type": "date"},
         # Utilisateur
         "id_user": {"type": "keyword"},
-        "user_review": {
-            "type": "text",
-            "fields": {
-                "raw": {"type": "keyword"}
-            }
-        },
+        "user_review": {"type": "text", "fields": {"raw": {"type": "keyword"}}},
         "user_review_length": {"type": "integer"},
         "user_rating": {"type": "float"},
+        "user_sentiment": {"type": "keyword", "fields": {"raw": {"type": "keyword"}}},
         # Entreprise
-        "enterprise_name": {
-            "type": "text",
-            "fields": {"raw": {"type": "keyword"}}
-        },
-        "enterprise_response": {"type": "text"},
+        "enterprise_name": {"type": "text", "fields": {"raw": {"type": "keyword"}}},
+        "enterprise_response": {"type": "text", "fields": {"raw": {"type": "keyword"}}},
         "enterprise_url": {"type": "keyword"},
         "enterprise_rating": {"type": "float"},
         "enterprise_review_number": {"type": "integer"},

@@ -1,4 +1,4 @@
-# File: tests\test_reviews_scraper.py
+# File: src\tests\test_reviews_scraper.py
 
 """
 Test de l'accessibilité de l'URL.

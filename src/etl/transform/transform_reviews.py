@@ -10,7 +10,9 @@ les informations sont nettoyées et formatées pour une insertion efficace dans 
 
 import math
 import re
+import requests
 from typing import Dict, Any, List
+from loguru import logger
 from etl.utils.data_utils import DataUtils
 
 
@@ -43,6 +45,34 @@ def anonymize_enterprise_response(text: str) -> str:
     text = re.sub(r"\s+[A-Z][a-z]+$", "", text)
     return text
 
+def predict_sentiment_from_api(text: str) -> Dict[str, Any]:
+    """
+    Appelle la route FastAPI pour obtenir la prédiction de sentiment pour un texte donné.
+    
+    Parameters
+    ----------
+    text : str
+        Le texte de l'avis utilisateur à analyser.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionnaire contenant le sentiment prédit.
+    """
+    PREDICT_API_URL = "http://fastapi:8000/predict"
+    payload = {"text": text}
+    
+    try:
+        response = requests.post(PREDICT_API_URL, json=payload)
+        # Lève une exception pour un code d'erreur HTTP
+        response.raise_for_status()
+        sentiment_info = response.json()
+        return sentiment_info
+    except requests.exceptions.RequestException as e:
+        # En cas d'erreur HTTP, on peut renvoyer un sentiment par défaut
+        print(f"Erreur lors de l'appel à FastAPI: {e}")
+        return {"sentiment": "Indéfini"}
+
 def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Transforme tous les avis de toutes les entreprises en documents prêts pour Elasticsearch,
@@ -74,9 +104,11 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
         une exception sera levée.
     """
     all_transformed_reviews: List[Dict[str, Any]] = []
+    total_reviews = 0  # compteur
 
     for raw in raw_list:
         reviews = raw.get("reviews", [])
+        total_reviews += len(reviews)
         enterprise_url: str = raw.get("enterprise_url", "")
         enterprise_info: Dict[str, Any] = raw.get("enterprise", {})
 
@@ -117,6 +149,21 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
             else:
                 reply_clean = anonymize_enterprise_response(reply_clean)
 
+            # Prédiction du sentiment via l'API FastAPI
+            try:
+                if text_clean != "indisponible":
+                    # Appel API FastAPI
+                    sentiment_info = predict_sentiment_from_api(text_clean)
+                    # On récupère le sentiment ou 'Indéfini' si absent
+                    user_sentiment = sentiment_info.get("sentiment", "Indéfini")
+                else:
+                    # Si le texte est indisponible, on met "Indéfini"
+                    user_sentiment = "Indéfini"
+            except Exception as e:
+                print(f"Erreur dans l'appel API FastAPI: {e}")
+                # Si l'API échoue, on met "Indéfini"
+                user_sentiment = "Indéfini"
+
             all_transformed_reviews.append({
                 "id_review": review.get("id"),
                 "is_verified": bool(verification.get("isVerified", False)),
@@ -125,6 +172,7 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
                 "user_review": text_clean,
                 "user_review_length": review_length,
                 "user_rating": DataUtils.to_float(review.get("rating")),
+                "user_sentiment": user_sentiment,
                 "date_response": DataUtils.format_date(reply.get("publishedDate") if reply else None),
                 "enterprise_response": reply_clean,
 
@@ -142,4 +190,5 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
                 "enterprise_percentage_five_star": pct_five,
             })
 
+    logger.info(f"[INFO] Total reviews traitées : {total_reviews}")
     return all_transformed_reviews

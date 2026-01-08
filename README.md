@@ -57,14 +57,14 @@ Le pipeline s’exécute dans un environnement **Docker Compose** pour isoler to
 
 ## 1. Prérequis
 
-| Outil          | Version minimale | Obligatoire |
-| -------------- | ---------------- | ----------- |
-| Python         | 3.10+            | ✅          |
-| Docker         | 20.x+            | ✅          |
-| Docker Compose | 1.29+            | ✅          |
-| Elasticsearch  | 8.12+            | optionnel   |
-| Kibana         | 8.12+            | optionnel   |
-|**WSL Ubuntu**  | N/A              | ✅          |
+| Outil          | Version | Obligatoire |
+| -------------- | ------- | ----------- |
+| Python         | 3.10+   | ✅         |
+| Docker         | 20.x+   | ✅         |
+| Docker Compose | 2.20+   | ✅         |
+| Elasticsearch  | 8.12    | optionnel  |
+| Kibana         | 8.12    | optionnel  |
+|**WSL Ubuntu**  | 2.6+    | ✅         |
 
 ---
 
@@ -73,7 +73,7 @@ Le pipeline s’exécute dans un environnement **Docker Compose** pour isoler to
 ### 2.1. Création de l’environnement virtuel
 
    ```bash
-   # Depuis la racine du projet
+   # Sous WSL Ubuntu depuis la racine du projet
    python3 -m venv venv
    source venv/bin/activate
    pip install --upgrade pip
@@ -89,6 +89,7 @@ Pour exécuter tous les tests, il suffit de se rendre à la racine du projet et<
 de lancer la commande suivante :
 
    ```bash
+   # Sous WSL Ubuntu depuis la racine du projet
    source venv/bin/activate
    export PYTHONPATH=$(pwd)/src
    echo $PYTHONPATH
@@ -100,7 +101,7 @@ de lancer la commande suivante :
 ## 4. Exécution avec Docker Compose
 
 ⚠️ **Attention** :</br>
-   - La commande ci-dessous supprime tous les conteneurs, images et volumes Docker liés au stack, et réinitialise toutes les données persistantes.
+   - Les commandes ci-dessous suppriment tous les conteneurs, images et volumes Docker liés au stack, et réinitialise toutes les données persistantes.
 Utilisez-la uniquement si vous voulez repartir complètement à zéro ou pour votre première exécution du stack.
 
    - Si ce script est modifié sous Windows (VS Code),
@@ -108,8 +109,19 @@ exécuter `dos2unix start_stack.sh` avant de lancer le script
 
    ```bash
    cd src/docker
+   docker volume prune -f
+   docker image prune -a -f
+   docker network prune -f
+   docker container prune -f
+   docker system prune -a -f --volumes
+   docker-compose down --volumes --rmi all --remove-orphans
+   docker buildx prune -a -f
+   ```
 
-   # Sous MacOS / Linux
+   ```bash
+   cd src/docker
+
+   # Sous WSL Ubuntu depuis la racine du projet
    chmod +x start_stack.sh
    ./start_stack.sh
 

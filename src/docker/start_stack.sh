@@ -1,86 +1,122 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
+# CONFIG
 export AIRFLOW_UID=${AIRFLOW_UID:-$(id -u)}
 COMPOSE="docker compose"
+DOCKER_TIMEOUT=120
 
-echo "=== Vérification Docker ==="
-$COMPOSE version >/dev/null
+# FONCTIONS
+wait_docker() {
+    echo "=== Verification Docker (WSL) ==="
+    echo "Assurez-vous que Docker Desktop est bien lance cote Windows"
 
-# --- Nettoyage complet Docker ---
-echo "=== STOP et suppression de tous les conteneurs du stack ==="
-$COMPOSE down --volumes --remove-orphans
+    local elapsed=0
+    local interval=5
+    local max_tries=$((DOCKER_TIMEOUT / interval))
+    local try=1
 
-echo "=== Suppression des images locales du stack ==="
-IMAGES=("fastapi-satisfaction" "streamlit-satisfaction" "airflow-webserver" "airflow-scheduler" "airflow-init" "grafana")
-for img in "${IMAGES[@]}"; do
-    if docker image inspect "$img" >/dev/null 2>&1; then
-        docker rmi -f "$img"
-    fi
-done
+    until docker info >/dev/null 2>&1; do
+        if [ "$try" -gt "$max_tries" ]; then
+            echo "Docker n'est pas pret apres $max_tries tentatives (~${DOCKER_TIMEOUT}s)"
+            exit 1
+        fi
 
-echo "=== Suppression des volumes Docker ==="
-VOLUMES=("es-data" "grafana-data" "airflow-data" "pgdata")
-for vol in "${VOLUMES[@]}"; do
-    if docker volume inspect "$vol" >/dev/null 2>&1; then
-        docker volume rm -f "$vol"
-    fi
-done
+        echo "Docker non pret (tentative $try/$max_tries), attente ${interval}s..."
+        sleep "$interval"
 
-echo "=== Nettoyage système Docker complet (conteneurs, volumes, réseaux non utilisés, images orphelines) ==="
-docker system prune -af --volumes
+        elapsed=$((elapsed + interval))
+        try=$((try + 1))
+    done
 
-# --- Reconstruction et relance ---
-echo "=== Reconstruction des images Docker (no-cache) ==="
-$COMPOSE build --no-cache
+    echo "Docker est pret !"
+}
 
-echo "=== Initialisation Airflow (safe à relancer) ==="
-$COMPOSE up airflow-init
-
-echo "=== Démarrage / reprise du stack ==="
-$COMPOSE up -d
-
-# --- Attente des services ---
 wait_service() {
     local name=$1
     local url=$2
     local delay=${3:-10}
     local retries=${4:-30}
-    echo "=== Attente que $name soit prêt ==="
+
+    echo "=== Attente que $name soit pret ==="
     local count=0
-    until curl -s "$url" >/dev/null 2>&1; do
-        count=$((count+1))
-        if [ $count -ge $retries ]; then
-            echo "$name n'a pas démarré après $((delay*retries)) secondes, arrêt."
+
+    until curl -fs "$url" >/dev/null 2>&1; do
+        count=$((count + 1))
+        if [ "$count" -ge "$retries" ]; then
+            echo "$name n'a pas demarre apres $((delay * retries))s"
             exit 1
         fi
-        echo "$name non prêt, attente ${delay}s..."
-        sleep $delay
+        echo "$name non pret, attente ${delay}s..."
+        sleep "$delay"
     done
+
+    echo "$name pret !"
 }
 
+# VERIFICATION DOCKER
+wait_docker
+
+# NETTOYAGE COMPLET
+echo "=== STOP et suppression de TOUS les containers ==="
+CONTAINERS=$(docker ps -aq)
+if [ -n "$CONTAINERS" ]; then
+    docker stop $CONTAINERS >/dev/null
+    docker rm -f $CONTAINERS >/dev/null
+else
+    echo "Aucun container a stopper"
+fi
+
+echo "=== Suppression des networks utilisateurs ==="
+NETWORKS=$(docker network ls --format '{{.Name}}' | grep -vE '^(bridge|host|none|nat)$' || true)
+for net in $NETWORKS; do
+    docker network rm "$net" >/dev/null || true
+done
+
+echo "=== Suppression de TOUS les volumes ==="
+VOLUMES=$(docker volume ls -q)
+if [ -n "$VOLUMES" ]; then
+    docker volume rm -f $VOLUMES >/dev/null
+else
+    echo "Aucun volume a supprimer"
+fi
+
+# BUILD & START
+echo "=== Build des autres images (no-cache) ==="
+$COMPOSE build --no-cache
+
+echo "=== Initialisation Airflow ==="
+$COMPOSE up -d airflow-init
+while [ "$(docker inspect -f '{{.State.Running}}' airflow-init)" = "true" ]; do
+    sleep 2
+done
+
+echo "=== Demarrage du stack ==="
+$COMPOSE up -d
+
+# VERIFICATION SANTE
 wait_service "Elasticsearch" "http://localhost:9200"
 wait_service "Kibana" "http://localhost:5601/api/status"
 wait_service "Airflow Webserver" "http://localhost:8081/health"
 
-# --- Activation du DAG Airflow ---
-# Déverrouille (unpause) le DAG ETL afin qu'il puisse être déclenché automatiquement ou manuellement
+# APRES-DEMARRAGE
+echo "=== Activation DAG Airflow ==="
 docker exec airflow-webserver airflow dags unpause etl_reviews_batch
 
-# --- Import Kibana Saved Objects ---
 echo "=== Import Kibana Saved Objects ==="
 docker exec -i kibana-satisfaction \
-  curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
+  curl -fs -X POST \
+  "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
   -H "kbn-xsrf: true" \
   --form file=@/opt/kibana_exports/export.ndjson
 
-# --- Lancement manuel du pipeline ETL ---
-echo "=== Lancement manuel du pipeline ETL via Python ==="
-docker exec airflow-webserver bash -c "PYTHONPATH=/opt/airflow python /opt/airflow/etl/main.py --pages 10"
+echo "=== Lancement ETL manuel ==="
+docker exec airflow-webserver \
+  bash -c "PYTHONPATH=/opt/airflow python /opt/airflow/etl/main.py --pages 10"
 
-# --- Affichage stack opérationnel ---
+# STATUS FINAL
 echo ""
-echo "=== Stack opérationnel ==="
+echo "=== Stack operationnel ==="
 $COMPOSE ps
 
 echo ""
