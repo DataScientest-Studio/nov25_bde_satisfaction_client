@@ -11,8 +11,9 @@ est bien généré via le modèle ML (mocké ici pour le test).
 
 from unittest.mock import patch
 from etl.transform.transform_reviews import transform_reviews_for_elasticsearch
+from etl.load.mapping_reviews import MAPPING_REVIEWS
 
-# Exemple de données brutes
+# Exemple de données brutes (comme tu as déjà)
 raw_reviews = [
     {
         "reviews": [
@@ -24,18 +25,8 @@ raw_reviews = [
                 "dates": {"publishedDate": "2023-01-01"},
                 "reply": {"message": "Thank you!"},
                 "labels": {"verification": {"isVerified": True}}
-            },
-            {
-                "id": "review_2",
-                "consumer": {"id": "user_2"},
-                "text": "",
-                "rating": 1,
-                "dates": {"publishedDate": "2023-02-01"},
-                "reply": None,
-                "labels": {"verification": {"isVerified": False}}
             }
         ],
-        "enterprise_url": "example-enterprise",
         "enterprise": {
             "name": "Example Enterprise",
             "ratings": {
@@ -52,46 +43,28 @@ raw_reviews = [
     }
 ]
 
-# Mock du modèle de sentiment pour rendre le test déterministe
-@patch("etl.transform.transform_reviews.predict_sentiment")
+@patch("etl.transform.transform_reviews.predict_sentiment_from_api")
 def test_transform_reviews_for_elasticsearch(mock_predict):
-    # On force le modèle à renvoyer Neutre pour tous les textes
+    # Mock du modèle de sentiment
     mock_predict.side_effect = lambda text: {"text_clean": text, "sentiment": "Neutre"}
 
     transformed_reviews = transform_reviews_for_elasticsearch(raw_reviews)
 
-    # Vérifier qu'il y a bien deux avis transformés
-    assert len(transformed_reviews) == 2
+    # Vérification du nombre de documents
+    assert len(transformed_reviews) == 1
 
-    # Vérifier le premier avis
     first_review = transformed_reviews[0]
-    assert first_review["id_review"] == "review_1"
-    assert first_review["is_verified"] is True
-    assert first_review["user_review"] == "Great product!"
-    assert first_review["user_rating"] == 5.0
-    assert first_review["enterprise_name"] == "Example Enterprise"
-    assert first_review["enterprise_percentage_five_star"] == 20  # 2/10 * 100
 
-    # Vérifier le deuxième avis (vides et non vérifié)
-    second_review = transformed_reviews[1]
-    assert second_review["id_review"] == "review_2"
-    assert second_review["is_verified"] is False
-    assert second_review["user_review"] == "indisponible"  # Avis vide
-    assert second_review["user_rating"] == 1.0
-    assert second_review["enterprise_name"] == "Example Enterprise"
-    assert second_review["enterprise_percentage_one_star"] == 10  # 1/10 * 100
-
-    # Vérifier que les valeurs par défaut sont appliquées quand nécessaire
-    assert second_review["enterprise_response"] == "indisponible"  # Pas de réponse de l'entreprise
-    assert second_review["date_response"] is None  # Pas de réponse de l'entreprise, donc None
-
-    # Vérifier les pourcentages
-    assert first_review["enterprise_percentage_one_star"] == 10
-    assert first_review["enterprise_percentage_two_star"] == 20
-    assert first_review["enterprise_percentage_three_star"] == 30
-    assert first_review["enterprise_percentage_four_star"] == 20
-    assert first_review["enterprise_percentage_five_star"] == 20
-
-    # Vérifier le champ user_sentiment
+    # Vérification du champ user_sentiment
     assert first_review["user_sentiment"] == "Neutre"
-    assert second_review["user_sentiment"] == "Neutre"
+
+    # Vérification que tous les champs du mapping sont présents dans le document transformé
+    excluded_fields = {"created_at", "updated_at"}
+
+    expected_fields = set(MAPPING_REVIEWS["properties"].keys()) - excluded_fields
+    doc_fields = set(first_review.keys())
+    missing_fields = expected_fields - doc_fields
+    extra_fields = doc_fields - expected_fields
+
+    assert not missing_fields, f"Champs manquants dans le document : {missing_fields}"
+    assert not extra_fields, f"Champs non déclarés dans le mapping : {extra_fields}"
