@@ -85,7 +85,7 @@ st.markdown(
 )
 
 # Affichage du dashboard Kibana dans un iframe
-st.subheader("📊 Tableau de bord via Elasticsearch / Kibana")
+st.subheader("📊 Tableau de bord - Elasticsearch / Kibana")
 components.iframe(
     src=KIBANA_URL,
     height=600,
@@ -95,7 +95,7 @@ components.iframe(
 st.markdown("---")
 
 # Section de prédiction de sentiment
-st.subheader("🔮 Outil de prédiction de sentiment via modèle ML")
+st.subheader("🔮 Outil de prédiction de sentiment - Modèle ML")
 
 # Mise en page avec deux colonnes
 col1, col2 = st.columns([1, 1])
