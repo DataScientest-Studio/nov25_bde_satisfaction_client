@@ -116,9 +116,9 @@ with col2:
         if response.status_code == 200:
             sentiment = response.json().get("sentiment", "Erreur lors de la prédiction")
             
-            if sentiment == "POSITIF":
+            if sentiment.lower() == "positif":
                 sentiment_color = "green"  # Sentiment positif => couleur verte
-            elif sentiment == "NÉGATIF":
+            elif sentiment.lower() == "négatif":
                 sentiment_color = "red"  # Sentiment négatif => couleur rouge
             else:
                 sentiment_color = "gray"  # Autre cas => couleur grise

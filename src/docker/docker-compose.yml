@@ -1,6 +1,7 @@
 # File: src\docker\docker-compose.yml
 
 services:
+  # Node Exporter pour Prometheus
   node_exporter:
     image: prom/node-exporter:v1.6.0
     container_name: node-exporter
@@ -9,6 +10,7 @@ services:
     networks:
       - monitoring
 
+  # Prometheus pour la collecte des métriques
   prometheus:
     image: prom/prometheus:v2.40.0
     container_name: prometheus
@@ -22,6 +24,7 @@ services:
     networks:
       - monitoring
 
+  # Grafana pour le dashboard des métriques
   grafana:
     build:
       context: ../../
@@ -34,13 +37,14 @@ services:
     networks:
       - monitoring
 
+  # Elasticsearch
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: es-satisfaction
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"
-      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
     ports:
       - "9200:9200"
     volumes:
@@ -48,13 +52,14 @@ services:
     networks:
       - monitoring
 
+  # Kibana : dashboard pour Elasticsearch
   kibana:
     image: docker.elastic.co/kibana/kibana:8.12.0
     container_name: kibana-satisfaction
     depends_on:
       - elasticsearch
     environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
     ports:
       - "5601:5601"
     volumes:
@@ -62,6 +67,7 @@ services:
     networks:
       - monitoring
 
+  # API FastAPI qui interagit avec Elasticsearch
   fastapi:
     build:
       context: ../../
@@ -70,7 +76,7 @@ services:
     depends_on:
       - elasticsearch
     environment:
-      ELASTICSEARCH_HOST: http://elasticsearch:9200
+      ELASTICSEARCH_HOST: "http://elasticsearch:9200"
     ports:
       - "8000:8000"
     volumes:
@@ -78,6 +84,7 @@ services:
     networks:
       - monitoring
 
+  # Frontend Streamlit
   streamlit:
     build:
       context: ../../
@@ -93,6 +100,7 @@ services:
     networks:
       - monitoring
 
+  # Postgres pour Airflow
   postgres:
     image: postgres:13
     container_name: airflow-postgres
@@ -107,18 +115,19 @@ services:
     networks:
       - monitoring
 
+  # Airflow init (création DB et user admin)
   airflow-init:
     build:
       context: ../../
       dockerfile: src/docker/Dockerfile_airflow
     container_name: airflow-init
-    user: "${AIRFLOW_UID}:0"
+    user: "50000:0"  # UID pour Airflow
     depends_on:
       - postgres
     environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor                # Exécution locale
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"                 # Ne pas charger les DAGs d’exemple
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"   # Activer les DAGs dès la création
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     volumes:
       - airflow-data:/opt/airflow
@@ -134,12 +143,13 @@ services:
     networks:
       - monitoring
 
+  # Airflow Webserver
   airflow-webserver:
     build:
       context: ../../
       dockerfile: src/docker/Dockerfile_airflow
     container_name: airflow-webserver
-    user: "${AIRFLOW_UID}:0"
+    user: "50000:0"
     depends_on:
       - airflow-init
     environment:
@@ -160,12 +170,13 @@ services:
     networks:
       - monitoring
 
+  # Airflow Scheduler
   airflow-scheduler:
     build:
       context: ../../
       dockerfile: src/docker/Dockerfile_airflow
     container_name: airflow-scheduler
-    user: "${AIRFLOW_UID}:0"
+    user: "50000:0"
     depends_on:
       - airflow-webserver
     environment:
@@ -188,10 +199,10 @@ services:
       - monitoring
 
 volumes:
-  es-data:
-  grafana-data:
-  airflow-data:
-  pgdata:
+  es-data:        # Elasticsearch data
+  grafana-data:   # Grafana data
+  airflow-data:   # Airflow data
+  pgdata:         # Postgres data
 
 networks:
   monitoring:
