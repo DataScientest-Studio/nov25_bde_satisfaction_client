@@ -2,7 +2,7 @@
 
 ## Schéma d'architecture du projet
 
-![Schéma d'architecture du projet](images\architecture_projet_satisfaction_client.png)
+![Schéma d'architecture du projet](images/architecture_projet_satisfaction_client.png)
 
 ## Site d'avis de clients → Pipeline ETL → Elasticsearch
 
