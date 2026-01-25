@@ -119,13 +119,16 @@ exécuter `dos2unix start_stack.sh` avant de lancer le script
    ```
 
    ```bash
-   cd src/docker
+   # Docker Desktop doit être démarré
+   # Depuis la racine du projet
 
-   # Sous WSL Ubuntu depuis la racine du projet
+   # WSL Ubuntu (terminal)
+   cd src/docker
    chmod +x start_stack.sh
    ./start_stack.sh
 
-   # Sous Windows (PowerShell en mode admin)
+   # Windows (PowerShell admin)
+   cd src\docker
    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
    .\start_stack.ps1
    ```
@@ -236,12 +239,13 @@ Depuis Kibana – Dev Tools :
 
 ## 9. Dépannage & problèmes fréquents
 
-| Problème                           | Cause probable                                     | Solution                                                                                                                                                                                                                               |
-| ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Elasticsearch ne démarre pas       | Port 9200 utilisé, mémoire insuffisante            | Vérifier les ports et ajuster `docker-compose.yml`                                                                                                                                                                                     |
-| ConnectionError vers Elasticsearch | Service ES pas encore prêt                         | Attendre (`sleep 30`) ou ajouter un retry dans le script                                                                                                                                                                               |
-| Mapping non appliqué               | Indice existant                                    | Supprimer l’indice : `DELETE /reviews`                                                                                                                                                                                                 |
-| Data View introuvable              | Mauvais pattern                                    | Vérifier que le pattern est `reviews*`                                                                                                                                                                                                 |
-| Problème de permissions            | Volume Docker                                      | `chmod -R 777 ./data`                                                                                                                                                                                                                  |
-| Erreur Docker sous Windows         | Docker Desktop non démarré ou backend WSL2 inactif | Vérifier que **Docker Desktop** est démarré, que le backend **WSL2** est actif, puis relancer Docker Desktop. Message typique : `unable to get image docker.elastic.co/kibana/kibana:8.12.0 The system cannot find the file specified` |
-| `invalid character '/' after object key:value pair` | Fichier `~/.docker/config.json` invalide (commentaire ou syntaxe non JSON) | Éditer `~/.docker/config.json` et supprimer tout commentaire ou caractère invalide. Exemple minimal : <br>```json { "auths": {} }``` <br>Tester ensuite avec `docker pull python:3.10-slim` et `docker pull apache/airflow:2.8.1` |
+| Problème                  | Cause probable                   | Solution                                               |
+| ------------------------- | -------------------------------- | ----------------------------------------------------- |
+| ES ne démarre pas          | Port 9200 utilisé, mémoire faible | Vérifier ports et ajuster `docker-compose.yml`       |
+| ConnectionError ES         | Service ES pas encore prêt       | Attendre 30s ou ajouter un retry                     |
+| Mapping non appliqué       | Indice existant                  | Supprimer l’indice : `DELETE /reviews`              |
+| Data View introuvable      | Mauvais pattern                  | Vérifier que le pattern est `reviews*`              |
+| Problème de permissions    | Volume Docker                    | `chmod -R 777 ./data`                                |
+| Docker sous Windows        | Docker Desktop ou WSL2 inactif   | Vérifier Docker Desktop et WSL2, puis relancer      |
+| Invalid char '/' config.json | `~/.docker/config.json` invalide | Supprimer tout commentaire et garder `{ "auths": {} }` |
+| WSL + Docker login échoue  | Credential helper mal configuré | Supprimer entrées invalides, garder `{ "auths": {} }`, refaire `docker login` |

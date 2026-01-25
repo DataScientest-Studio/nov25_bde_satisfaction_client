@@ -11,6 +11,7 @@ Il inclut :
 """
 
 import os
+import time
 import streamlit as st
 import requests
 import streamlit.components.v1 as components
@@ -40,7 +41,7 @@ GRAFANA_URL = "http://localhost:3000"
 KIBANA_URL = (
     "http://localhost:5601/app/dashboards#/view/4e52a31c-5cea-4429-b435-6d36728ad392"
     "?embed=true"
-    "&_g=(time:(from:now-7d,to:now))"
+    "&_g=(time:(from:now-1y,to:now))"
 )
 API_URL = "http://fastapi-satisfaction:8000/predict"
 
@@ -86,6 +87,44 @@ st.markdown(
 
 # Affichage du dashboard Kibana dans un iframe
 st.subheader("📊 Tableau de bord - Elasticsearch / Kibana")
+
+# Initialisation du timestamp pour forcer reload
+if "kibana_ts" not in st.session_state:
+    st.session_state.kibana_ts = int(time.time())
+
+# Choix de la période
+col_select, _ = st.columns([1, 5])
+with col_select:
+    periode = st.selectbox(
+        "Période du dashboard",
+        ["7 derniers jours", "14 derniers jours", "1 mois", "3 mois", "6 mois", "1 an"]
+    )
+
+# Conversion en format Kibana
+from_to_map = {
+    "7 derniers jours": "now-7d",
+    "14 derniers jours": "now-14d",
+    "1 mois": "now-1M",
+    "3 mois": "now-3M",
+    "6 mois": "now-6M",
+    "1 an": "now-1y"
+}
+
+# Conversion sélection → format Kibana
+from_time = from_to_map[periode]
+
+# Mettre à jour le timestamp à chaque interaction avec Streamlit
+st.session_state.kibana_ts = int(time.time())
+
+# URL dynamique avec période et timestamp
+KIBANA_URL = (
+    "http://localhost:5601/app/dashboards#/view/4e52a31c-5cea-4429-b435-6d36728ad392"
+    "?embed=true"
+    f"&_g=(time:(from:{from_time},to:now))"
+    f"&_ts={st.session_state.kibana_ts}"
+)
+
+# Affichage dans l'iframe
 components.iframe(
     src=KIBANA_URL,
     height=600,

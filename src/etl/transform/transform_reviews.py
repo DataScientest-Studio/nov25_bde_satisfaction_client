@@ -16,7 +16,7 @@ from loguru import logger
 from etl.utils.data_utils import DataUtils
 
 
-def anonymize_enterprise_response(text: str) -> str:
+def anonymize_text(text: str) -> str:
     """
     Anonymise un texte en remplaçant les fautes de salutation, prénoms et noms par des valeurs génériques.
     Vérifier à l'aide de https://regex101.com/
@@ -31,18 +31,45 @@ def anonymize_enterprise_response(text: str) -> str:
     str
         Texte anonymisé.
     """
-    # 1. Remplacer les fautes courantes par "Bonjour"
-    text = re.sub(r"^(Bonour|Bonnour|Bonjouir|Bonsoir)", "Bonjour", text)
-    # 2. Remplacer les salutations comme "Bonjour Madame", "Bonjour Monsieur", etc.
-    text = re.sub(r"^(Bonjour) (Madame, Monsieur|Madame|Monsieur|Mme|M\.|Mr|Melle|M)? ?([\wÀ-ÿ-]+)(,|$)", "Bonjour,", text)
-    # 3. Remplacer "Bonjour" suivi d'un prénom simple (un mot commençant par une majuscule)
-    text = re.sub(r"^(Bonjour), ?([A-Za-zÀ-ÿ-]+)(,|$)", "Bonjour,", text)
-    # 4. Remplacer "Bonjour" suivi d'un prénom composé
-    text = re.sub(r"^(Bonjour) ([A-Za-zÀ-ÿ-]+(?: [A-Za-zÀ-ÿ-]+)*),", "Bonjour,", text)
-    # 5. Remplacer "Bonjour" suivi d'un prénom composé (deux mots ou plus) pour ne garder que le dernier prénom
-    text = re.sub(r"^(Bonjour), (\s*[A-ZÀ-ÿ][a-zÀ-ÿ]+)(\s+[A-ZÀ-ÿ][a-zÀ-ÿ]+)", lambda m: f"Bonjour, {m.group(3).strip()}", text)
-    # 6. Enlever tout prénom ou nom à la fin de la phrase
-    text = re.sub(r"\s+[A-Z][a-z]+$", "", text)
+    # 1. Emails
+    text = re.sub(
+        r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b",
+        "[EMAIL_SUPPRIMÉ]",
+        text,
+    )
+    # 2. Téléphones FR (inclut +33(0)6...)
+    text = re.sub(
+        r"(?:\+33\s*\(?0?\)?|0)[1-9](?:[\s.\-]?\d{2}){4}",
+        "[TÉLÉPHONE_SUPPRIMÉ]",
+        text,
+    )
+    # 3. Normaliser fautes courantes de salutation (multiligne)
+    text = re.sub(
+        r"(?im)^(Bonour|Bonnour|Bonjouir|Bonsoir|Bonoir)",
+        "Bonjour",
+        text,
+    )
+    # 4. Bonjour + TOUT ce qui suit (prénom, nom, civilité, composé) règle atomique pour éviter les doublons
+    text = re.sub(
+        r"(?im)^Bonjour\s+[^\n,]+(?:\s*,)?\s*$",
+        "Bonjour [NOM_ANONYMISÉ],",
+        text,
+    )
+    # 5. Civilité + nom/prénom ailleurs dans le texte
+    text = re.sub(
+        r"\b(MR|M|MME|Mme|Monsieur|Madame|Melle)\s+"
+        r"[A-Za-zÀ-ÖØ-öø-ÿ-]+(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ-]+)*\b",
+        "[NOM_ANONYMISÉ]",
+        text,
+        flags=re.IGNORECASE,
+    )
+    # 6. Signature : ligne contenant uniquement un prénom ou prénom + nom
+    text = re.sub(
+        r"(?m)^(?:[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ-]+)"
+        r"(?:\s+[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ-]+)*[.,]?$",
+        "[NOM_ANONYMISÉ]",
+        text,
+    )
     return text
 
 def predict_sentiment_from_api(text: str) -> Dict[str, Any]:
@@ -140,6 +167,9 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
             text_clean = DataUtils.clean_text(review.get("text"))
             if not text_clean:
                 text_clean = "indisponible"
+            else:
+                text_clean = anonymize_text(text_clean)
+
             review_length = len(text_clean)
 
             # Nettoyage de la réponse entreprise
@@ -147,7 +177,7 @@ def transform_reviews_for_elasticsearch(raw_list: List[Dict[str, Any]]) -> List[
             if not reply_clean:
                 reply_clean = "indisponible"
             else:
-                reply_clean = anonymize_enterprise_response(reply_clean)
+                reply_clean = anonymize_text(reply_clean)
 
             # Prédiction du sentiment via l'API FastAPI
             try:
