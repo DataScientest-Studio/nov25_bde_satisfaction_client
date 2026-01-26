@@ -1,43 +1,78 @@
 # NOV25 – BDE Satisfaction Client
 
-## Schéma d'architecture du projet
+🚀 Présentation du projet
+
+Cette plateforme permet d’automatiser l’analyse de la satisfaction client à partir d’avis en ligne.
+Elle couvre l’ensemble de la chaîne data engineering & machine learning, de la collecte des données jusqu’à leur exposition via une API et une interface de visualisation interactive.
+
+Le projet a été réalisé dans le cadre du Bootcamp Data Engineer – DataScientest, avec une approche agile, orientée scalabilité, automatisation et observabilité.
+
+🎯 Objectifs
+
+- Collecter automatiquement des avis clients à grande échelle
+- Analyser le sentiment des avis via un modèle de Machine Learning / NLP
+- Stocker et indexer les données dans une architecture NoSQL
+- Exposer les données via une API REST
+- Proposer des dashboards interactifs pour l’exploration des résultats
+- Mettre en place orchestration, monitoring et déploiement conteneurisé
+
+🏗️ Architecture du projet
 
 ![Schéma d'architecture du projet](images/architecture_projet_satisfaction_client.png)
 
-## Site d'avis de clients → Pipeline ETL → Elasticsearch
+🔄 Pipeline ETL – Avis clients → Elasticsearch
 
-Ce dépôt contient un pipeline **ETL (Extract – Transform – Load)** conçu pour collecter des avis publiés et les indexer dans **Elasticsearch** sous l’indice **`reviews`**. Il comprend les étapes suivantes :
+Ce dépôt contient un pipeline ETL (Extract – Transform – Load) permettant de collecter des avis clients et de les indexer dans Elasticsearch (indice `reviews`).
 
-### Extraction
-- Récupération des avis pour une ou plusieurs entreprises (dans ce projet, une seule entreprise).
-- Gestion automatique de la pagination pour collecter tous les avis disponibles.
-- Filtrage et traitement initial des données afin d’assurer la qualité et la cohérence.
+🔹 Extraction
 
-### Transformation
-- Anonymisation des informations personnelles pour respecter le **RGPD**.
-- Nettoyage et normalisation des textes.
-- Parsing des dates et formatage des champs pour correspondre aux standards Elasticsearch.
-- Préparation des données pour un chargement efficace et incrémental.
+- Collecte des avis pour une ou plusieurs entreprises (une entreprise dans ce projet)
+- Gestion automatique de la pagination
+- Validation et filtrage initial des données
 
-### Chargement
-- Insertion des données dans Elasticsearch via des opérations **bulk** pour optimiser la performance.
-- Mise à jour incrémentale (**upsert**) pour éviter les doublons et maintenir l’indice à jour.
-- Gestion des erreurs et logs détaillés pour faciliter le suivi et le débogage.
+🔹 Transformation
 
-## Stack Docker complet
+- Anonymisation des données sensibles (conformité RGPD)
+- Nettoyage et normalisation des textes
+- Parsing et standardisation des dates
+- Enrichissement et structuration des documents pour Elasticsearch
 
-Le pipeline s’exécute dans un environnement **Docker Compose** pour isoler toutes les dépendances et faciliter le déploiement :
+🔹 Chargement
 
-| Service        | Description                                                        |
-| -------------- | ------------------------------------------------------------------ |
-| **Airflow**    | Orchestration des DAGs ETL, planification et exécution du pipeline. |
-| **FastAPI**    | API pour l’accès aux données et aux résultats d’analyse.           |
-| **Streamlit**  | Dashboard pour visualiser les avis et l’analyse de sentiment.     |
-| **Elasticsearch** | Indexation des avis pour recherche et agrégation.                |
-| **Kibana**     | Interface de visualisation et exploration des données Elasticsearch. |
-| **Grafana**    | Monitoring et dashboards métriques.                                 |
-| **Prometheus** | Collecte des métriques des services pour monitoring.               |
-| **Node Exporter** | Export des métriques système pour Prometheus.                     |
+- Indexation via opérations bulk pour de meilleures performances
+- Mécanisme d’upsert pour éviter les doublons
+- Logs détaillés et gestion des erreurs pour le suivi du pipeline
+
+🐳 Environnement Docker & Services
+
+L’ensemble du projet est déployé via Docker Compose, garantissant la portabilité et l’isolation des services.
+
+| Service          | Rôle                                                        |
+|------------------|-------------------------------------------------------------|
+| **Airflow**      | Orchestration et planification des DAGs ETL                 |
+| **FastAPI**      | API REST pour l’accès aux données et résultats d’analyse    |
+| **Streamlit**    | Interface utilisateur et dashboards interactifs             |
+| **Elasticsearch**| Stockage, recherche et agrégation des avis                  |
+| **Kibana**       | Exploration et visualisation des données Elasticsearch      |
+| **Prometheus**   | Collecte des métriques applicatives                         |
+| **Grafana**      | Monitoring et dashboards de supervision                     |
+| **Node Exporter**| Collecte des métriques système                              |
+
+🧰 Stack technique
+
+- Langage : Python
+- Data Engineering : Airflow, ETL, Elasticsearch
+- Machine Learning / NLP : Analyse de sentiment
+- Backend : FastAPI
+- Frontend : Streamlit
+- Conteneurisation : Docker, Docker Compose
+- Observabilité : Prometheus, Grafana
+
+👥 Équipe projet
+
+ibbouM  
+roxfr Thierry M  
+SofianeDore
 
 ---
 
