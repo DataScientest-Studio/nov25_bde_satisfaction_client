@@ -92,12 +92,17 @@ st.subheader("📊 Tableau de bord - Elasticsearch / Kibana")
 if "kibana_ts" not in st.session_state:
     st.session_state.kibana_ts = int(time.time())
 
+# Callback pour mettre à jour le timestamp uniquement lors du changement de période
+def on_periode_change() -> None:
+    st.session_state.kibana_ts = int(time.time())
+
 # Choix de la période
 col_select, _ = st.columns([1, 5])
 with col_select:
     periode = st.selectbox(
-        "Période du dashboard",
-        ["7 derniers jours", "14 derniers jours", "1 mois", "3 mois", "6 mois", "1 an"]
+        "Sélectionner une période :",
+        ["7 derniers jours", "14 derniers jours", "1 mois", "3 mois", "6 mois", "1 an"],
+        on_change=on_periode_change
     )
 
 # Conversion en format Kibana
@@ -112,9 +117,6 @@ from_to_map = {
 
 # Conversion sélection → format Kibana
 from_time = from_to_map[periode]
-
-# Mettre à jour le timestamp à chaque interaction avec Streamlit
-st.session_state.kibana_ts = int(time.time())
 
 # URL dynamique avec période et timestamp
 KIBANA_URL = (
@@ -141,30 +143,38 @@ col1, col2 = st.columns([1, 1])
 
 with col1:
     # Zone de saisie pour l'avis de l'utilisateur
-    text_input = st.text_area("Entrez votre avis ci-dessous", "", height=150)
+    text_input = st.text_area("Entrer votre avis ci-dessous (4000 caractères max.) :", "", height=150)
 
 with col2:
-    sentiment = ""  # Variable pour stocker le sentiment prédit
+    sentiment = ""        # Variable pour stocker le sentiment prédit
     sentiment_color = ""  # Variable pour définir la couleur du texte en fonction du sentiment
 
-    # Si un avis est soumis, on fait appel à l'API pour la prédiction
-    if text_input:
-        response = requests.post(API_URL, json={"text": text_input})
+    text_clean = text_input.strip()
 
-        # Si la requête est réussie, on récupère le sentiment et on ajuste la couleur
-        if response.status_code == 200:
-            sentiment = response.json().get("sentiment", "Erreur lors de la prédiction")
-            
-            if sentiment.lower() == "positif":
-                sentiment_color = "green"  # Sentiment positif => couleur verte
-            elif sentiment.lower() == "négatif":
-                sentiment_color = "red"  # Sentiment négatif => couleur rouge
-            else:
-                sentiment_color = "gray"  # Autre cas => couleur grise
+    if text_clean:  # Si le texte n'est pas vide
+        # Bloquer texte de 1 caractère ou deux caractères identiques
+        if len(text_clean) == 1 or (len(text_clean) == 2 and text_clean[0] == text_clean[1]):
+            sentiment = "Texte trop court ou répétitif pour prédiction"
+            sentiment_color = "gray"
         else:
-            st.error(f"Erreur {response.status_code}: Impossible de prédire le sentiment")
+            response = requests.post(API_URL, json={"text": text_input})
 
-    # Affichage du sentiment prédit avec une mise en forme spécifique
+            if response.status_code == 200:
+                sentiment = response.json().get("sentiment", "Erreur lors de la prédiction")
+                
+                if sentiment.lower() == "positif":
+                    sentiment_color = "green"
+                elif sentiment.lower() == "négatif":
+                    sentiment_color = "red"
+                else:
+                    sentiment_color = "gray"
+            else:
+                st.error(f"Erreur {response.status_code}: Impossible de prédire le sentiment")
+    else:
+        sentiment = ""  # Aucun texte saisi
+        sentiment_color = ""
+
+    # Affichage du sentiment prédit
     st.markdown("<u><strong>Sentiment prédit :</strong></u>", unsafe_allow_html=True)
     
     if sentiment:
@@ -179,7 +189,7 @@ if st.button("Envoyer l'avis pour prédiction"):
     if not text_input:
         st.warning("Veuillez entrer un avis avant de soumettre.")
 
-# Footer avec le copyright de DataScientest
+# Footer
 st.markdown(
     """
     <footer style="text-align: center; font-size: 12px; color: gray; margin-top: 20px;">
